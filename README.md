@@ -50,3 +50,9 @@ Nairobi, Kenya.
 - Supabase database/storage encryption at rest and TLS are platform-level controls; verify the current project configuration and use RLS for tenant/property-level authorization before storing live customer data.
 - The CSP is a baseline and must be tested against every production integration before tightening further.
 - Run `npm run build` and browser checks after each security-header or PWA change.
+
+
+## Operational security documents
+- [Security and data-handling baseline](docs/SECURITY.md)
+- [Responsible AI usage policy](docs/AI_USAGE_POLICY.md)
+- [Production release and verification checklist](docs/RELEASE_CHECKLIST.md)
