@@ -11,7 +11,7 @@ export default async function DashboardPage({
   const supabase = await createClient();
   const { data: claimsData } = await supabase.auth.getClaims();
   const userId = claimsData?.claims?.sub;
-  if (!userId) return null;
+  if (!userId) redirect("/login?next=%2Fdashboard");
 
   const [{ data: profile }, { data: memberships }] = await Promise.all([
     supabase.from("profiles").select("full_name").eq("id", userId).maybeSingle(),
