@@ -73,3 +73,9 @@
  .scene-grid,.scene-orb,.scene-float,.orbit-one,.orbit-two,.orbit-core,.statement-glow,.chart-bars i{animation:none!important}
  .building-scene:hover .scene-building,.dashboard-shell:hover,.metric-card:hover,.feature-card:hover,.workflow-visual:hover .orbit-node{transform:none!important}
 }
+
+/* PWA install action */
+.install-app-button{border:1px solid rgba(91,137,119,.45);background:transparent;color:#315b4c;padding:11px 13px;border-radius:3px;font-size:11px;font-weight:700;cursor:pointer;transition:background .2s,border-color .2s}
+.install-app-button:hover{background:rgba(145,199,181,.18);border-color:#78a994}
+.footer .install-app-button{color:#cde3d4;border-color:rgba(190,218,202,.35)}
+@media(max-width:720px){.install-app-button{width:100%;padding:13px;text-align:center}}
