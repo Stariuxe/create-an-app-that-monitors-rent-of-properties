@@ -39,7 +39,16 @@ function cleanMessages(input: unknown): ChatMessage[] {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const origin = request.headers.get("origin");
+    const host = request.headers.get("x-forwarded-host") || request.headers.get("host");
+    if (origin && host && new URL(origin).host !== host) {
+      return NextResponse.json({ error: "Request origin not allowed." }, { status: 403 });
+    }
+    const rawBody = await request.text();
+    if (rawBody.length > 24000) {
+      return NextResponse.json({ error: "Please shorten your message and try again." }, { status: 413 });
+    }
+    const body = JSON.parse(rawBody);
     const messages = cleanMessages(body?.messages);
     if (!messages.length || messages[messages.length - 1].role !== "user") {
       return NextResponse.json({ error: "Please enter a message to get started." }, { status: 400 });
