@@ -69,66 +69,27 @@ export async function POST(
   }
 
   if (callback.ResultCode !== 0) {
-    const { error } = await supabase
-      .from("payments")
+    const { error } = await supabase.from("payments")
       .update({ status: "failed", notes: "Daraja sandbox payment was not completed." })
-      .eq("id", payment.id)
-      .eq("status", "pending");
+      .eq("id", payment.id).eq("status", "pending");
     if (error) return NextResponse.json({ error: "Could not record payment result" }, { status: 500 });
     return NextResponse.json({ received: true, successful: false });
   }
-
   const items = callback.CallbackMetadata?.Item ?? [];
   const value = (name: string) => items.find((item) => item.Name === name)?.Value;
   const receipt = value("MpesaReceiptNumber");
   const paidAmount = Number(value("Amount"));
-  const phone = value("PhoneNumber");
-  if (
-    typeof receipt !== "string" ||
-    !receipt ||
-    !Number.isFinite(paidAmount) ||
-    paidAmount !== Number(payment.amount)
-  ) {
-    return NextResponse.json({ error: "Payment confirmation did not match expected amount" }, { status: 422 });
+  if (typeof receipt !== "string" || !receipt || !Number.isFinite(paidAmount)) {
+    return NextResponse.json({ error: "Payment confirmation metadata is incomplete" }, { status: 422 });
   }
-
-  const { data: confirmed, error: confirmError } = await supabase
-    .from("payments")
-    .update({
-      status: "confirmed",
-      provider_reference: receipt,
-      paid_at: new Date().toISOString(),
-      notes: typeof phone === "number" ? "Daraja sandbox callback verified." : "Daraja sandbox callback verified.",
-    })
-    .eq("id", payment.id)
-    .eq("status", "pending")
-    .select("id")
-    .maybeSingle();
-
-  if (confirmError) return NextResponse.json({ error: "Could not confirm payment" }, { status: 500 });
-  if (!confirmed) return NextResponse.json({ received: true, duplicate: true });
-
-  const { data: charge, error: chargeError } = await supabase
-    .from("rent_charges")
-    .select("amount, amount_paid")
-    .eq("id", payment.rent_charge_id)
-    .eq("organization_id", payment.organization_id)
-    .single();
-  if (chargeError || !charge) {
-    return NextResponse.json({ error: "Payment confirmed; rent balance needs reconciliation" }, { status: 500 });
-  }
-
-  const newAmountPaid = Number(charge.amount_paid) + paidAmount;
-  const newStatus = newAmountPaid >= Number(charge.amount) ? "paid" : "partially_paid";
-  const { error: chargeUpdateError } = await supabase
-    .from("rent_charges")
-    .update({ amount_paid: newAmountPaid, status: newStatus })
-    .eq("id", payment.rent_charge_id)
-    .eq("organization_id", payment.organization_id);
-
-  if (chargeUpdateError) {
-    return NextResponse.json({ error: "Payment confirmed; rent balance needs reconciliation" }, { status: 500 });
-  }
-
-  return NextResponse.json({ received: true, successful: true });
+  const { data: outcome, error: confirmError } = await supabase.rpc("confirm_mpesa_sandbox_payment", {
+    p_checkout_id: checkoutId,
+    p_receipt: receipt,
+    p_paid_amount: paidAmount,
+  });
+  if (confirmError) return NextResponse.json({ error: "Could not safely reconcile payment" }, { status: 500 });
+  if (outcome === "mismatch") return NextResponse.json({ received: true, successful: false, reason: "amount_mismatch" }, { status: 422 });
+  if (outcome === "unmatched") return NextResponse.json({ received: true, matched: false });
+  if (outcome === "duplicate") return NextResponse.json({ received: true, duplicate: true });
+  return NextResponse.json({ received: true, successful: outcome === "confirmed" });
 }
