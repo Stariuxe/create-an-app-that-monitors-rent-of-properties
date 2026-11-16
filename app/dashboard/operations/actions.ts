@@ -4,14 +4,26 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 
 async function workspace(formData: FormData) {
-  const organization_id = String(formData.get("organization_id") ?? "");
+  const requestedOrganizationId = String(formData.get("organization_id") ?? "").trim();
   const supabase = await createClient();
   const { data: claims } = await supabase.auth.getClaims();
   const userId = claims?.claims?.sub;
   if (!userId) redirect("/login");
-  const { data: member } = await supabase.from("organization_members").select("organization_id,role").eq("organization_id", organization_id).eq("user_id", userId).in("role", ["landlord","property_manager","accountant","caretaker","platform_admin"]).maybeSingle();
+
+  // Resolve access from the authenticated user's own memberships first.
+  // The hidden form field is only a selector, never proof of authorization.
+  const { data: memberships, error } = await supabase
+    .from("organization_members")
+    .select("organization_id,role")
+    .eq("user_id", userId)
+    .in("role", ["landlord","property_manager","accountant","caretaker","platform_admin"]);
+
+  if (error || !memberships?.length) redirect("/dashboard/operations?error=access");
+  const member = memberships.find((item) => item.organization_id === requestedOrganizationId)
+    ?? (memberships.length === 1 ? memberships[0] : null);
   if (!member) redirect("/dashboard/operations?error=access");
-  return { supabase, organization_id };
+
+  return { supabase, organization_id: member.organization_id };
 }
 export async function addProperty(f: FormData) {
   const {supabase,organization_id}=await workspace(f);
