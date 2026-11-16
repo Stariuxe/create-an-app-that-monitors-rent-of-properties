@@ -1,0 +1,16 @@
+{
+  "id": "/",
+  "name": "PropertyOS AI",
+  "short_name": "PropertyOS",
+  "description": "Property management workspace for landlords and property managers in Kenya.",
+  "lang": "en-KE",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#102724",
+  "theme_color": "#102724",
+  "orientation": "any",
+  "icons": [
+    { "src": "/brand/propertyos-app-icon.webp", "sizes": "512x512", "type": "image/webp", "purpose": "any maskable" }
+  ]
+}
