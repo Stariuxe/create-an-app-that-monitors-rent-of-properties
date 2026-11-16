@@ -20,7 +20,8 @@ export default async function DashboardPage({
 
   if (memberships?.length) redirect("/dashboard/operations");
 
-  const errorText = errorCode === "create" ? "Could not create the workspace. Please try again."
+  const errorText = errorCode === "auth" ? "Your sign-in session has expired. Please sign in again, then retry workspace setup."
+    : errorCode === "create" ? "Could not create the workspace. Please try again."
     : errorCode === "membership" ? "Workspace created, but membership setup needs support."
     : errorCode === "workspace" ? "Enter a workspace name between 2 and 100 characters." : "";
 
