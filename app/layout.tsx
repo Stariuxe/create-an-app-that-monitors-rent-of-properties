@@ -9,6 +9,8 @@ export const metadata: Metadata = {
   title: { default: "PropertyOS AI | Property Management & Rent Collection Software in Kenya", template: "%s | PropertyOS AI" },
   description: "Manage rental properties in Kenya with PropertyOS AI. Organise tenants, leases, rent charges and payment records in one property management workspace built for landlords and property managers.",
   applicationName: "PropertyOS AI",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "PropertyOS AI" },
   alternates: { canonical: "/" },
   icons: { icon: "/brand/propertyos-app-icon.webp", shortcut: "/brand/propertyos-app-icon.webp", apple: "/brand/propertyos-app-icon.webp" },
   keywords: ["property management software Kenya", "rental property management Kenya", "rent collection software Kenya", "landlord software Kenya", "property management Nairobi", "tenant management system", "rent tracking", "lease management", "PropertyOS AI"],
