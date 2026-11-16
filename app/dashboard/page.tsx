@@ -13,17 +13,25 @@ export default async function DashboardPage({
   const userId = claimsData?.claims?.sub;
   if (!userId) redirect("/login?next=%2Fdashboard");
 
-  const [{ data: profile }, { data: memberships }] = await Promise.all([
+  const [{ data: profile }, { data: memberships, error: membershipError }] = await Promise.all([
     supabase.from("profiles").select("full_name").eq("id", userId).maybeSingle(),
     supabase.from("organization_members").select("role, organizations(id, name)").eq("user_id", userId),
   ]);
 
-  if (memberships?.length) redirect("/dashboard/operations");
+  const staffRoles = ["landlord", "property_manager", "accountant", "caretaker", "platform_admin"];
+  if (memberships?.some((membership: any) => staffRoles.includes(membership.role))) {
+    redirect("/dashboard/operations");
+  }
 
   const errorText = errorCode === "auth" ? "Your sign-in session has expired. Please sign in again, then retry workspace setup."
     : errorCode === "create" ? "Could not create the workspace. Please try again."
     : errorCode === "membership" ? "Workspace created, but membership setup needs support."
     : errorCode === "workspace" ? "Enter a workspace name between 2 and 100 characters." : "";
+  const membershipMessage = membershipError
+    ? "We could not verify your workspace access. Refresh this page or sign in again; no new workspace has been created."
+    : memberships?.length
+      ? "This account currently has tenant access, not landlord workspace permissions. Sign in with your landlord account or ask the workspace owner to grant you a landlord or property-manager role."
+      : "";
 
   return (
     <main style={{ minHeight: "100vh", background: "#f3f2ec", color: "#132c2a", padding: "32px 6%" }}>
@@ -40,11 +48,11 @@ export default async function DashboardPage({
           <article style={{ padding: 24, background: "#fff", border: "1px solid #dce4dc", borderRadius: 10 }}>
             <h2 style={{ marginTop: 0 }}>Create your workspace</h2>
             <p style={{ color: "#687573", fontSize: 13, lineHeight: 1.6 }}>Use your business or portfolio name. You can invite your team after the workspace setup is complete.</p>
-            <form action={createWorkspace}>
+            {membershipMessage ? <p role="alert" style={{ padding: 12, background: "#f9e8e2", color: "#8a3829", borderRadius: 6, lineHeight: 1.6 }}>{membershipMessage}</p> : <form action={createWorkspace}>
               <label htmlFor="workspace" style={{ display: "block", fontSize: 12, marginBottom: 8 }}>Workspace name</label>
               <input id="workspace" name="name" required minLength={2} maxLength={100} placeholder="e.g. Stariuxe Properties" style={{ width: "100%", padding: 12, border: "1px solid #cfd9d0", borderRadius: 6, marginBottom: 12 }} />
               <button type="submit" style={{ width: "100%", padding: 13, border: 0, borderRadius: 6, background: "#183b32", color: "#fff", fontWeight: 700 }}>Create workspace →</button>
-            </form>
+            </form>}
           </article>
           <article style={{ padding: 24, background: "#fff", border: "1px solid #dce4dc", borderRadius: 10 }}>
             <h2 style={{ marginTop: 0 }}>Your workspaces</h2>
