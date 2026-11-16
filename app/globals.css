@@ -15,3 +15,61 @@
 
 /* Official PropertyOS AI brand assets */
 .brand{gap:0;letter-spacing:normal}.brand img{display:block;width:clamp(190px,19vw,260px);height:auto;max-height:58px;object-fit:contain;object-position:left center}.footer .brand img{width:245px;max-height:64px}@media(max-width:760px){.brand img{width:205px;max-height:48px}.footer .brand img{width:220px}}
+
+
+/* PropertyOS immersive motion system — lightweight CSS 3D, no WebGL dependency */
+.hero{isolation:isolate}
+.building-scene{perspective:1200px;perspective-origin:62% 48%;transform-style:preserve-3d}
+.scene-grid{transform:perspective(700px) rotateX(62deg) rotateZ(-5deg) scale(1.65);transform-origin:50% 100%;animation:grid-drift 18s ease-in-out infinite alternate}
+.scene-orb{animation:orb-breathe 8s ease-in-out infinite alternate}
+.scene-building{transform-style:preserve-3d;backface-visibility:hidden;transition:transform .7s cubic-bezier(.2,.75,.25,1),filter .7s}
+.building-back{transform:translateZ(-80px) skewY(-5deg)}
+.building-mid{transform:translateZ(20px) skewY(-5deg)}
+.building-front{transform:translateZ(100px) skewY(-5deg)}
+.building-scene:hover .building-back{transform:translate3d(-10px,-5px,-80px) rotateY(-4deg) skewY(-5deg)}
+.building-scene:hover .building-mid{transform:translate3d(0,-9px,30px) rotateY(-3deg) skewY(-5deg)}
+.building-scene:hover .building-front{transform:translate3d(9px,-13px,125px) rotateY(-5deg) skewY(-5deg)}
+.scene-building span{transition:background .5s,box-shadow .5s}
+.building-scene:hover .scene-building span{box-shadow:inset 0 0 24px rgba(179,230,199,.28),0 0 15px rgba(121,194,157,.12)}
+.scene-float{position:absolute;z-index:5;display:flex;align-items:center;gap:11px;padding:12px 15px;border:1px solid rgba(188,224,205,.24);border-radius:8px;background:rgba(16,42,38,.76);backdrop-filter:blur(12px);box-shadow:0 18px 45px rgba(0,0,0,.2);color:#eaf4ed;transform-style:preserve-3d;animation:float-card 6s ease-in-out infinite}
+.scene-float b,.scene-float small{display:block}
+.scene-float b{font-size:10px;letter-spacing:.01em}
+.scene-float small{font:8px var(--mono);color:#9dbbad;margin-top:5px}
+.scene-float-top{top:19%;right:12%;animation-delay:-1.4s}
+.scene-float-bottom{right:5%;bottom:25%;animation-delay:-3.6s}
+.float-icon{width:28px;height:28px;display:grid;place-items:center;border-radius:7px;background:rgba(146,199,172,.17);color:#a9d9bd;font-size:16px}
+.float-pulse{width:8px;height:8px;border-radius:50%;background:#9dd8b3;box-shadow:0 0 0 5px rgba(157,216,179,.12),0 0 18px #9dd8b3}
+.dashboard-shell{transform:perspective(1600px) rotateX(1.2deg);transform-origin:50% 0;transition:transform .7s cubic-bezier(.2,.75,.25,1),box-shadow .7s}
+.dashboard-shell:hover{transform:perspective(1600px) rotateX(0deg) translateY(-5px);box-shadow:0 45px 100px rgba(22,46,38,.16)}
+.metric-card{transition:transform .35s,box-shadow .35s,border-color .35s;transform-style:preserve-3d}
+.metric-card:hover{transform:translateY(-5px) rotateX(4deg);border-color:#b9d4c4;box-shadow:0 14px 28px rgba(22,46,38,.08)}
+.chart-bars i{transform-origin:bottom;animation:bar-rise .9s cubic-bezier(.2,.8,.2,1) both}
+.chart-bars i:nth-child(2n){animation-delay:.08s}.chart-bars i:nth-child(3n){animation-delay:.16s}
+.feature-card{transform:perspective(700px) rotateY(0);transform-origin:left center;transition:transform .45s,border-color .45s}
+.feature-card:hover{transform:perspective(700px) rotateY(-4deg) translateZ(12px) translateY(-4px);border-color:#8eb7a1}
+.workflow-visual{perspective:900px;transform-style:preserve-3d}
+.orbit-one{animation:orbit-turn 24s linear infinite}
+.orbit-two{animation:orbit-turn-reverse 30s linear infinite}
+.orbit-core{transform:translateZ(30px);animation:core-hover 5s ease-in-out infinite}
+.orbit-node{transform:translateZ(55px);transition:transform .35s,box-shadow .35s}
+.workflow-visual:hover .orbit-node{transform:translateZ(85px) scale(1.06);box-shadow:0 18px 34px rgba(29,58,44,.16)}
+.statement-glow{animation:orb-breathe 9s ease-in-out infinite alternate}
+@keyframes grid-drift{from{background-position:0 0;transform:perspective(700px) rotateX(62deg) rotateZ(-5deg) scale(1.65) translateY(0)}to{background-position:70px 70px;transform:perspective(700px) rotateX(62deg) rotateZ(-5deg) scale(1.65) translateY(10px)}}
+@keyframes orb-breathe{from{transform:scale(.94);opacity:.55}to{transform:scale(1.08);opacity:1}}
+@keyframes float-card{0%,100%{translate:0 0;rotate:0deg}50%{translate:0 -11px;rotate:-1deg}}
+@keyframes orbit-turn{to{rotate:336deg}}
+@keyframes orbit-turn-reverse{to{rotate:-302deg}}
+@keyframes core-hover{0%,100%{translate:0 0}50%{translate:0 -8px}}
+@keyframes bar-rise{from{transform:scaleY(.12);opacity:.4}to{transform:scaleY(1);opacity:1}}
+@media(max-width:720px){
+ .scene-float{padding:9px 10px;gap:8px}
+ .scene-float b{font-size:8px}.scene-float small{font-size:6px}
+ .scene-float-top{top:11%;right:6%}.scene-float-bottom{right:5%;bottom:17%}
+ .building-scene:hover .scene-building{transform:none}
+ .dashboard-shell{transform:none}
+ .workflow-visual:hover .orbit-node{transform:none}
+}
+@media(prefers-reduced-motion:reduce){
+ .scene-grid,.scene-orb,.scene-float,.orbit-one,.orbit-two,.orbit-core,.statement-glow,.chart-bars i{animation:none!important}
+ .building-scene:hover .scene-building,.dashboard-shell:hover,.metric-card:hover,.feature-card:hover,.workflow-visual:hover .orbit-node{transform:none!important}
+}
