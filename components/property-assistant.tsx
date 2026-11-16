@@ -73,7 +73,7 @@ export default function PropertyAssistant() {
         </div>
         <form onSubmit={submit} style={{display:"flex",gap:8,padding:12,borderTop:"1px solid rgba(255,255,255,.13)"}}>
           <input value={draft} onChange={(e)=>setDraft(e.target.value)} placeholder="Ask how to do something…" aria-label="Your message" maxLength={1800} style={{flex:1,minWidth:0,borderRadius:9,border:"1px solid #527667",background:"#f5f7f2",color:"#19372f",padding:"11px 12px",fontSize:13,outline:"none"}}/>
-          <button type="submit" disabled={busy || !draft.trim()} style={{border:0,borderRadius:9,background:"#a6d2c2",color:"#17362d",fontWeight:800,padding:"0 14px",cursor:busy?"wait":"pointer",opacity:busy||!draft.trim()?.5:1}}>Send</button>
+          <button type="submit" disabled={busy || !draft.trim()} style={{border:0,borderRadius:9,background:"#a6d2c2",color:"#17362d",fontWeight:800,padding:"0 14px",cursor:busy?"wait":"pointer",opacity:(busy || !draft.trim()) ? 0.5 : 1}}>Send</button>
         </form>
       </section>}
       <button onClick={()=>setOpen((v)=>!v)} aria-label={open?"Close PropertyOS assistant":"Open PropertyOS assistant"} style={{marginLeft:"auto",display:"flex",alignItems:"center",gap:9,border:0,borderRadius:999,background:"#a6d2c2",color:"#14352d",padding:"13px 17px",fontWeight:800,fontSize:13,boxShadow:"0 7px 25px rgba(0,0,0,.2)",cursor:"pointer"}}>
