@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import PropertyAssistant from "@/components/property-assistant";
+import PwaRegister from "@/components/pwa-register";
 
 const siteUrl = "https://propertyosai.cc.cd";
 
@@ -29,5 +30,5 @@ const structuredData = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en-KE"><body>{children}<PropertyAssistant /><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} /></body></html>;
+  return <html lang="en-KE"><body>{children}<PropertyAssistant /><PwaRegister /><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} /></body></html>;
 }
