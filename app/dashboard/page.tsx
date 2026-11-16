@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createWorkspace, signOut } from "./actions";
 
@@ -16,6 +17,8 @@ export default async function DashboardPage({
     supabase.from("profiles").select("full_name").eq("id", userId).maybeSingle(),
     supabase.from("organization_members").select("role, organizations(id, name)").eq("user_id", userId),
   ]);
+
+  if (memberships?.length) redirect("/dashboard/operations");
 
   const errorText = errorCode === "create" ? "Could not create the workspace. Please try again."
     : errorCode === "membership" ? "Workspace created, but membership setup needs support."
