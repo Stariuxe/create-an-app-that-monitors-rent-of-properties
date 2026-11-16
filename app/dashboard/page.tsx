@@ -50,7 +50,7 @@ export default async function DashboardPage({
             })}</ul> : <p style={{ color: "#687573", fontSize: 13 }}>No workspace yet. Create one to begin.</p>}
           </article>
         </div>
-        <p style={{ color: "#87928b", fontSize: 11, marginTop: 30 }}>Property, tenant, lease and rent-management modules will be connected to this workspace in the next implementation stage.</p>
+        <div style={{ marginTop: 30, padding: 22, background: "#e7eee7", borderRadius: 10 }}><h2 style={{ marginTop: 0 }}>Manage your portfolio</h2><p style={{ color: "#687573", lineHeight: 1.6 }}>Add properties, units, tenants, leases and rent charges. Review live records and outstanding balances in your workspace.</p><a href="/dashboard/operations" style={{ display: "inline-block", padding: "12px 18px", background: "#183b32", color: "#fff", borderRadius: 6, textDecoration: "none", fontWeight: 700 }}>Open property operations →</a></div>
       </section>
     </main>
   );
