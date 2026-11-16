@@ -35,3 +35,18 @@ Open http://localhost:3000.
 **PropertyOS AI**  
 **Every Property. Under Control.**  
 Nairobi, Kenya.
+
+
+## Installable website (PWA)
+- The public marketing site can be installed from supported browsers using the Install app action or browser menu.
+- The service worker caches only the public home page and public static assets for a basic offline fallback.
+- API, login, dashboard, account and other user-specific routes are excluded from service-worker caching.
+- This is an installable web app, not a native Android APK or iOS App Store application.
+
+## Security and performance baseline
+- Global HSTS, CSP, frame, MIME-sniffing, referrer and permissions headers are configured in `next.config.ts`.
+- Next.js response compression is enabled; static assets use browser cache-first behavior via the service worker.
+- Never put Supabase service-role keys, OpenAI keys, M-Pesa credentials or encryption keys in client-side code.
+- Supabase database/storage encryption at rest and TLS are platform-level controls; verify the current project configuration and use RLS for tenant/property-level authorization before storing live customer data.
+- The CSP is a baseline and must be tested against every production integration before tightening further.
+- Run `npm run build` and browser checks after each security-header or PWA change.
