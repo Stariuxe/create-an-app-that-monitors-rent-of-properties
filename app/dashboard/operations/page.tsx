@@ -14,9 +14,10 @@ export default async function OperationsPage({searchParams}:{searchParams:Promis
   supabase.from("tenants").select("id,full_name,email,phone").eq("organization_id",org.id).order("created_at",{ascending:false}).limit(500),
   supabase.from("leases").select("id,unit_id,tenant_id,monthly_rent,start_date,status").eq("organization_id",org.id).eq("status","active").limit(500),
   supabase.from("rent_charges").select("id,lease_id,billing_period,due_date,amount,amount_paid,status").eq("organization_id",org.id).order("due_date",{ascending:false}).limit(30),
-  supabase.from("payments").select("id,amount,method,status,created_at").eq("organization_id",org.id).order("created_at",{ascending:false}).limit(10)
+  supabase.from("payments").select("id,amount,method,status,created_at").eq("organization_id",org.id).order("created_at",{ascending:false}).limit(10),
+  supabase.from("rent_charges").select("id,lease_id,billing_period,due_date,amount,amount_paid,status").eq("organization_id",org.id).neq("status","paid").order("due_date",{ascending:false}).limit(500)
  ]);
- const properties=pr.data??[], units=ur.data??[], tenants=tr.data??[], leases=lr.data??[], charges=cr.data??[], payments=par.data??[];
+ const properties=pr.data??[], units=ur.data??[], tenants=tr.data??[], leases=lr.data??[], charges=cr.data??[], payments=par.data??[], openCharges=ocr.data??[];
  const charged=charges.reduce((s:number,x:any)=>s+Number(x.amount),0), received=charges.reduce((s:number,x:any)=>s+Number(x.amount_paid),0);
  const errors:Record<string,string>={access:"You do not have permission to manage this workspace.",property:"Property could not be saved.",unit:"Unit could not be saved. Check the property and rent.",tenant:"Tenant could not be saved.",lease:"Lease could not be saved. Check the selected unit and tenant.",charge:"Rent charge could not be saved.",mpesa_phone:"Enter a valid Kenyan mobile number.",mpesa_charge:"Select a rent charge with an outstanding balance.",mpesa_config:"M-Pesa sandbox is not configured. Ask the administrator to set the sandbox credentials.",mpesa_pending:"A sandbox payment is already pending for this rent charge.",mpesa_start:"Could not start the sandbox payment. Check Daraja credentials and try again."};
  const successes:Record<string,string>={property:"Property added.",unit:"Unit added.",tenant:"Tenant added.",lease:"Lease created.",charge:"Rent charge created.",mpesa:"Sandbox STK prompt requested. Check the test phone."};
