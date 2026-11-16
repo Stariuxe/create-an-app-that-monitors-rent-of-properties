@@ -9,10 +9,10 @@ export default async function OperationsPage({searchParams}:{searchParams:Promis
  const m=memberships?.find((x:any)=>["landlord","property_manager","accountant","caretaker"].includes(x.role)); const org=m?(Array.isArray(m.organizations)?m.organizations[0]:m.organizations):null;
  if(!org)return <main style={{padding:40,background:"#f3f2ec",minHeight:"100vh",color:"#132c2a"}}><a href="/dashboard">← Dashboard</a><h1>Create your landlord workspace first</h1></main>;
  const [pr,ur,tr,lr,cr,par]=await Promise.all([
-  supabase.from("properties").select("id,name,address,county,property_type").eq("organization_id",org.id).order("created_at",{ascending:false}),
-  supabase.from("units").select("id,property_id,unit_number,monthly_rent,status").eq("organization_id",org.id).order("unit_number"),
-  supabase.from("tenants").select("id,full_name,email,phone").eq("organization_id",org.id).order("created_at",{ascending:false}),
-  supabase.from("leases").select("id,unit_id,tenant_id,monthly_rent,start_date,status").eq("organization_id",org.id).eq("status","active"),
+  supabase.from("properties").select("id,name,address,county,property_type").eq("organization_id",org.id).order("created_at",{ascending:false}).limit(200),
+  supabase.from("units").select("id,property_id,unit_number,monthly_rent,status").eq("organization_id",org.id).order("unit_number").limit(500),
+  supabase.from("tenants").select("id,full_name,email,phone").eq("organization_id",org.id).order("created_at",{ascending:false}).limit(500),
+  supabase.from("leases").select("id,unit_id,tenant_id,monthly_rent,start_date,status").eq("organization_id",org.id).eq("status","active").limit(500),
   supabase.from("rent_charges").select("id,lease_id,billing_period,due_date,amount,amount_paid,status").eq("organization_id",org.id).order("due_date",{ascending:false}).limit(30),
   supabase.from("payments").select("id,amount,method,status,created_at").eq("organization_id",org.id).order("created_at",{ascending:false}).limit(10)
  ]);
