@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import PropertyAssistant from "@/components/property-assistant";
 
 export const metadata: Metadata = {
   title: "PropertyOS AI — Every Property. Under Control.",
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>{children}<PropertyAssistant /></body>
     </html>
   );
 }
