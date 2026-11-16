@@ -64,8 +64,15 @@ export async function addLease(f: FormData) {
 export async function addRentCharge(f: FormData) {
   const {supabase,organization_id}=await workspace(f);
   const lease_id=String(f.get("lease_id")??""); const billing_period=String(f.get("billing_period")??""); const due_date=String(f.get("due_date")??""); const amount=Number(f.get("amount"));
-  if(!lease_id||!billing_period||!due_date||!Number.isFinite(amount)||amount<=0) redirect("/dashboard/operations?error=charge");
-  const {error}=await supabase.from("rent_charges").insert({organization_id,lease_id,billing_period:billing_period+"-01",due_date,amount,amount_paid:0,status:"unpaid"});
+  const validMonth=/^\\d{4}-(0[1-9]|1[0-2])$/.test(billing_period);
+  const validDate=/^\\d{4}-\\d{2}-\\d{2}$/.test(due_date) && !Number.isNaN(Date.parse(due_date));
+  if(!lease_id||!validMonth||!validDate||!Number.isFinite(amount)||amount<=0) redirect("/dashboard/operations?error=charge");
+  const {data:lease,error:leaseError}=await supabase.from("leases").select("id").eq("id",lease_id).eq("organization_id",organization_id).eq("status","active").maybeSingle();
+  if(leaseError||!lease) redirect("/dashboard/operations?error=charge_lease");
+  const billingDate=billing_period+"-01";
+  const {data:existingCharge,error:existingError}=await supabase.from("rent_charges").select("id").eq("organization_id",organization_id).eq("lease_id",lease_id).eq("billing_period",billingDate).limit(1).maybeSingle();
+  if(existingError||existingCharge) redirect("/dashboard/operations?error=duplicate_charge");
+  const {error}=await supabase.from("rent_charges").insert({organization_id,lease_id,billing_period:billingDate,due_date,amount,amount_paid:0,status:"unpaid"});
   if (error) { console.error("PropertyOS addRentCharge failed:", error.code); redirect("/dashboard/operations?error=charge"); }
   revalidatePath("/dashboard/operations");
   redirect("/dashboard/operations?success=charge");
