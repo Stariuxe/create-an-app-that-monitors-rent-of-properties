@@ -16,7 +16,7 @@ const steps = [
 ];
 
 function Brand() {
-  return <a className="brand" href="#top" aria-label="PropertyOS AI home"><span className="brand-mark"><i /><i /><i /></span><span>property<span className="brand-os">OS</span><small>AI</small></span></a>;
+  return <a className="brand" href="#top" aria-label="PropertyOS AI home"><img src="/brand/propertyos-logo.webp" alt="PropertyOS AI Limited — Smarter Property Management. Greater Value." /></a>;
 }
 
 function BuildingScene() {
