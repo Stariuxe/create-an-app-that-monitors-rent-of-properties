@@ -29,6 +29,8 @@ function BuildingScene() {
       <div className="scene-building building-front"><span /><span /><span /><span /><span /><span /><span /><span /><span /><span /></div>
       <div className="scene-ground" />
       <div className="scene-glow" />
+      <div className="scene-float scene-float-top"><span className="float-icon">↗</span><span><b>Portfolio overview</b><small>Every property in view</small></span></div>
+      <div className="scene-float scene-float-bottom"><span className="float-pulse" /><span><b>Rent visibility</b><small>Track what needs attention</small></span></div>
       <div className="scene-caption"><span className="caption-dot" /> BUILT FOR THE WAY YOU MANAGE</div>
     </div>
   );
