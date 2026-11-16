@@ -80,7 +80,7 @@ export default function Home() {
         <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle navigation" aria-expanded={menuOpen}><span /><span /></button>
         <nav className={menuOpen ? "nav-links nav-open" : "nav-links"} aria-label="Main navigation">
           <a href="#platform" onClick={closeMenu}>Platform</a><a href="#how-it-works" onClick={closeMenu}>How it works</a><a href="#why-propertyos" onClick={closeMenu}>Why PropertyOS</a><a href="#faq" onClick={closeMenu}>FAQs</a>
-          <a className="nav-cta" href="#pilot" onClick={closeMenu}>Request early access <span>↗</span></a>
+          <a href="/login" onClick={closeMenu}>Sign in</a><a className="nav-cta" href="/login" onClick={closeMenu}>Landlord portal <span>↗</span></a>
         </nav>
       </header>
 
