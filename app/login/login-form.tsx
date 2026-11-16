@@ -1,11 +1,9 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 export default function LoginForm() {
-  const searchParams = useSearchParams();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -34,8 +32,7 @@ export default function LoginForm() {
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        const next = searchParams.get("next");
-        window.location.assign(next && next.startsWith("/") ? next : "/dashboard");
+        window.location.assign("/dashboard");
       }
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Unable to complete authentication.");
