@@ -79,3 +79,9 @@
 .install-app-button:hover{background:rgba(145,199,181,.18);border-color:#78a994}
 .footer .install-app-button{color:#cde3d4;border-color:rgba(190,218,202,.35)}
 @media(max-width:720px){.install-app-button{width:100%;padding:13px;text-align:center}}
+
+
+/* Keep the PropertyOS interface readable when the device/browser prefers dark mode. */
+:root{color-scheme:light}
+html,body{background-color:#f3f2ec;color:#101b1b}
+input,select,textarea,button{color-scheme:light}
