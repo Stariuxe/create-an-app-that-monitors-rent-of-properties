@@ -6,25 +6,24 @@ import { createClient } from "@/lib/supabase/server";
 export async function createWorkspace(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   if (name.length < 2 || name.length > 100) redirect("/dashboard?error=workspace");
+
   const supabase = await createClient();
   const { data: claimsData } = await supabase.auth.getClaims();
-  const userId = claimsData?.claims?.sub;
-  if (!userId) redirect("/login");
+  if (!claimsData?.claims?.sub) redirect("/login");
 
-  const { data: organization, error } = await supabase
-    .from("organizations")
-    .insert({ name, created_by: userId })
-    .select("id")
-    .single();
-  if (error || !organization) redirect("/dashboard?error=create");
+  const { data: organizationId, error } = await supabase.rpc(
+    "create_workspace_for_current_user",
+    { p_name: name }
+  );
 
-  const { error: memberError } = await supabase.from("organization_members").insert({
-    organization_id: organization.id,
-    user_id: userId,
-    role: "landlord",
-  });
-  if (memberError) redirect("/dashboard?error=membership");
-  redirect("/dashboard");
+  if (error || !organizationId) {
+    const code = error?.code === "28000" ? "auth"
+      : error?.code === "22023" ? "workspace"
+      : "create";
+    redirect(`/dashboard?error=${code}`);
+  }
+
+  redirect("/dashboard/operations");
 }
 
 export async function signOut() {
