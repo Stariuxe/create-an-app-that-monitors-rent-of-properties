@@ -76,23 +76,23 @@ export default function Home() {
   const closeMenu = () => setMenuOpen(false);
 
   return (
-    <main id="top">
+    <a className="skip-link" href="#main-content">Skip to content</a>\n    <main id="top">
       <div className="announcement"><span className="announcement-pill">EARLY ACCESS</span> We’re preparing our first landlord pilot. <a href="#pilot">Join the interest list <span>↗</span></a></div>
       <header className="site-header">
         <Brand />
         <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle navigation" aria-expanded={menuOpen}><span /><span /></button>
         <nav className={menuOpen ? "nav-links nav-open" : "nav-links"} aria-label="Main navigation">
           <a href="#platform" onClick={closeMenu}>Platform</a><a href="#how-it-works" onClick={closeMenu}>How it works</a><a href="#why-propertyos" onClick={closeMenu}>Why PropertyOS</a><a href="#faq" onClick={closeMenu}>FAQs</a>
-          <a href="/login" onClick={closeMenu}>Sign in</a><InstallAppButton /><a className="nav-cta" href="/login" onClick={closeMenu}>Landlord portal <span>↗</span></a>
+          <a href="/login" onClick={closeMenu}>Sign in</a><InstallAppButton /><a className="nav-cta" href="/signup" onClick={closeMenu}>Create account <span>↗</span></a>
         </nav>
       </header>
 
-      <section className="hero">
+      <div id="main-content" tabIndex={-1}>\n      <section className="hero">
         <div className="hero-copy">
           <div className="kicker"><span className="kicker-line" /> PROPERTY MANAGEMENT, REIMAGINED</div>
           <h1>Own the details.<br /><em>See the bigger</em> <span>picture.</span></h1>
           <p className="hero-description">A clearer way to manage your rental portfolio. Bring properties, tenants, leases and rent workflows into one intelligent workspace.</p>
-          <div className="hero-actions"><a className="button button-primary" href="#pilot">Explore early access <span>↗</span></a><a className="text-link" href="#platform">Discover the platform <span>↓</span></a></div>
+          <div className="hero-actions"><a className="button button-primary" href="/signup">Create your account <span>↗</span></a><a className="text-link" href="#platform">Explore the portfolio tools <span>↓</span></a></div>
           <div className="hero-proof"><div className="proof-avatars"><i>✦</i><i>⌂</i><i>◈</i></div><div><b>Made for modern landlords</b><small>Designed with rental operations in mind</small></div></div>
         </div>
         <BuildingScene />
@@ -118,7 +118,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="statement-section"><div className="statement-glow" /><div className="section-index">[ THE PROPERTYOS POINT OF VIEW ]</div><h2>Your properties<br />are an investment.<br /><em>Your systems should<br />work like one.</em></h2><p>Every property. Every tenant. Every detail — in a clearer picture.</p><a className="button button-light" href="#pilot">Be part of what’s next <span>↗</span></a><div className="statement-coordinate">01°17′S 36°49′E <span>NAIROBI, KENYA</span></div></section>
+      <section className="statement-section"><div className="statement-glow" /><div className="section-index">[ THE PROPERTYOS POINT OF VIEW ]</div><h2>Your properties<br />are an investment.<br /><em>Your systems should<br />work like one.</em></h2><p>Every property. Every tenant. Every detail — in a clearer picture.</p><a className="button button-light" href="/signup">Create your account <span>↗</span></a><div className="statement-coordinate">01°17′S 36°49′E <span>NAIROBI, KENYA</span></div></section>
 
       <section className="pilot-section" id="pilot">
         <div className="pilot-copy"><div className="section-index">[ FIRST ACCESS ]</div><h2>Help shape the<br /><em>future of renting.</em></h2><p>We’re inviting a small group of landlords and property managers to explore the early product, share their workflows and help us build what matters most.</p><div className="pilot-points"><span>✳ Early product access</span><span>✳ Direct feedback channel</span><span>✳ Help shape the roadmap</span></div></div>
@@ -133,7 +133,7 @@ export default function Home() {
         ["How will my information be protected?","Security and privacy controls are a release requirement. We will publish the relevant privacy information and safeguards before onboarding real tenant data."]
       ].map(([q,a],i)=><div className={faqOpen===i?"faq-item faq-active":"faq-item"} key={q}><button onClick={()=>setFaqOpen(faqOpen===i?null:i)} aria-expanded={faqOpen===i}><span>{q}</span><i>{faqOpen===i?"−":"+"}</i></button>{faqOpen===i&&<p>{a}</p>}</div>)}</div></section>
 
-      <footer className="footer"><div className="footer-top"><div><Brand /><p>Property operations,<br />in a clearer perspective.</p></div><div className="footer-links"><div><b>EXPLORE</b><a href="#platform">Platform</a><a href="#how-it-works">How it works</a><a href="#faq">FAQs</a></div><div><b>GET IN TOUCH</b><a href="#pilot">Pilot programme</a><a href="mailto:hello@propertyos.ai">hello@propertyos.ai</a></div></div></div><div className="footer-bottom"><span>© 2026 PROPERTYOS AI. ALL RIGHTS RESERVED.</span><span>EVERY PROPERTY. UNDER CONTROL.</span><span>NAIROBI, KENYA</span></div><p className="legal-note">PropertyOS AI Limited is a proposed company name pending registration approval. Product features described as planned or in development are not represented as currently available.</p></footer>
+      <footer className="footer"><div className="footer-top"><div><Brand /><p>Property operations,<br />in a clearer perspective.</p></div><div className="footer-links"><div><b>EXPLORE</b><a href="#platform">Platform</a><a href="#how-it-works">How it works</a><a href="#faq">FAQs</a></div><div><b>GET STARTED</b><a href="/signup">Create account</a><a href="/login">Sign in</a><a href="#pilot">Pilot programme</a><a href="mailto:hello@propertyos.ai">hello@propertyos.ai</a></div></div></div><div className="footer-bottom"><span>© 2026 PROPERTYOS AI. ALL RIGHTS RESERVED.</span><span>EVERY PROPERTY. UNDER CONTROL.</span><span>NAIROBI, KENYA</span></div><p className="legal-note">PropertyOS AI Limited is a proposed company name pending registration approval. Product features described as planned or in development are not represented as currently available.</p></footer>
     </main>
   );
 }
