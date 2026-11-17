@@ -1,0 +1,45 @@
+name: PropertyOS AI uptime check
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/15 * * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: propertyos-uptime
+  cancel-in-progress: true
+
+jobs:
+  check-production:
+    name: Check production availability
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Check homepage and response time
+        env:
+          SITE_URL: https://propertyos-ai-gamma.vercel.app
+        run: |
+          set -euo pipefail
+          START=$(date +%s)
+          STATUS=$(curl --silent --show-error --location --output /tmp/home.html --write-out "%{http_code}" --max-time 20 "$SITE_URL/")
+          END=$(date +%s)
+          ELAPSED=$((END - START))
+          echo "Homepage HTTP status: $STATUS"
+          echo "Homepage elapsed seconds: $ELAPSED"
+          test "$STATUS" -ge 200 && test "$STATUS" -lt 400
+          test "$ELAPSED" -le 10
+          test -s /tmp/home.html
+
+      - name: Check application health endpoint
+        env:
+          SITE_URL: https://propertyos-ai-gamma.vercel.app
+        run: |
+          set -euo pipefail
+          STATUS=$(curl --silent --show-error --location --output /tmp/health.json --write-out "%{http_code}" --max-time 15 "$SITE_URL/api/health")
+          echo "Health endpoint HTTP status: $STATUS"
+          cat /tmp/health.json
+          test "$STATUS" = "200"
+          grep -q '"status":"ok"' /tmp/health.json
