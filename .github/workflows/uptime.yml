@@ -20,7 +20,7 @@ jobs:
     steps:
       - name: Check homepage and response time
         env:
-          SITE_URL: https://propertyos-ai-gamma.vercel.app
+          SITE_URL: https://propertyosai.cc.cd
         run: |
           set -euo pipefail
           START=$(date +%s)
@@ -35,7 +35,7 @@ jobs:
 
       - name: Check application health endpoint
         env:
-          SITE_URL: https://propertyos-ai-gamma.vercel.app
+          SITE_URL: https://propertyosai.cc.cd
         run: |
           set -euo pipefail
           STATUS=$(curl --silent --show-error --location --output /tmp/health.json --write-out "%{http_code}" --max-time 15 "$SITE_URL/api/health")
