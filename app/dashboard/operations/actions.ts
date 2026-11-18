@@ -57,21 +57,22 @@ export async function addTenant(f: FormData) {
 }
 export async function addLease(f: FormData) {
   const {supabase,organization_id}=await workspace(f);
-  const unit_id=String(f.get("unit_id")??""); const tenant_id=String(f.get("tenant_id")??""); const start_date=String(f.get("start_date")??""); const monthly_rent=Number(f.get("monthly_rent")); const rent_due_day=Number(f.get("rent_due_day")??1);
-  if(!unit_id||!tenant_id||!start_date||!Number.isInteger(monthly_rent)||monthly_rent<1||rent_due_day<1||rent_due_day>28) redirect("/dashboard/operations?error=lease");
-  const [{data:unit},{data:tenant}] = await Promise.all([
-    supabase.from("units").select("id,status").eq("id",unit_id).eq("organization_id",organization_id).maybeSingle(),
-    supabase.from("tenants").select("id").eq("id",tenant_id).eq("organization_id",organization_id).maybeSingle()
-  ]);
-  if(!unit || unit.status!=="vacant" || !tenant) redirect("/dashboard/operations?error=lease");
-  const {data:lease,error}=await supabase.from("leases").insert({organization_id,unit_id,tenant_id,start_date,monthly_rent,rent_due_day,status:"active"}).select("id").single();
-  if (error || !lease) { console.error("PropertyOS addLease failed:", error?.code ?? "empty_result"); redirect("/dashboard/operations?error=lease"); }
-  // Claim the vacant unit after the lease insert. Conditional update prevents two
-  // concurrent submissions from leasing the same unit; roll back our lease if lost.
-  const {data:claimedUnit,error:unitUpdateError}=await supabase.from("units").update({status:"occupied"}).eq("id",unit_id).eq("organization_id",organization_id).eq("status","vacant").select("id").maybeSingle();
-  if(unitUpdateError || !claimedUnit) {
-    const {error:rollbackError}=await supabase.from("leases").delete().eq("id",lease.id).eq("organization_id",organization_id);
-    console.error("PropertyOS unit claim failed:", unitUpdateError?.code ?? "unit_not_vacant", rollbackError?.code ?? "rollback_attempted");
+  const unit_id=String(f.get("unit_id")??"");
+  const tenant_id=String(f.get("tenant_id")??"");
+  const start_date=String(f.get("start_date")??"");
+  const monthly_rent=Number(f.get("monthly_rent"));
+  const rent_due_day=Number(f.get("rent_due_day")??1);
+  if(!unit_id||!tenant_id||!/^\\d{4}-\\d{2}-\\d{2}$/.test(start_date)||!Number.isInteger(monthly_rent)||monthly_rent<1||rent_due_day<1||rent_due_day>28) redirect("/dashboard/operations?error=lease");
+  const {data:leaseId,error}=await supabase.rpc("create_lease_for_current_user",{
+    p_organization_id:organization_id,
+    p_unit_id:unit_id,
+    p_tenant_id:tenant_id,
+    p_start_date:start_date,
+    p_monthly_rent:monthly_rent,
+    p_rent_due_day:rent_due_day
+  });
+  if(error || !leaseId) {
+    console.error("PropertyOS atomic lease creation failed:",error?.code??"empty_result");
     redirect("/dashboard/operations?error=lease");
   }
   revalidatePath("/dashboard/operations");
