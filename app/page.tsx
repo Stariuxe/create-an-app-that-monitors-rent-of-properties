@@ -137,6 +137,7 @@ export default function Home() {
       ].map(([q,a],i)=><div className={faqOpen===i?"faq-item faq-active":"faq-item"} key={q}><button onClick={()=>setFaqOpen(faqOpen===i?null:i)} aria-expanded={faqOpen===i}><span>{q}</span><i>{faqOpen===i?"−":"+"}</i></button>{faqOpen===i&&<p>{a}</p>}</div>)}</div></section>
 
       <footer className="footer"><div className="footer-top"><div><Brand /><p>Property operations,<br />in a clearer perspective.</p></div><div className="footer-links"><div><b>EXPLORE</b><a href="#platform">Platform</a><a href="#how-it-works">How it works</a><a href="#faq">FAQs</a></div><div><b>GET STARTED</b><a href="/signup">Create account</a><a href="/login">Sign in</a><a href="#pilot">Pilot programme</a><a href="mailto:hello@propertyos.ai">hello@propertyos.ai</a></div></div></div><div className="footer-bottom"><span>© 2026 PROPERTYOS AI. ALL RIGHTS RESERVED.</span><span>EVERY PROPERTY. UNDER CONTROL.</span><span>NAIROBI, KENYA</span></div><p className="legal-note">PropertyOS AI Limited is a proposed company name pending registration approval. Product features described as planned or in development are not represented as currently available.</p></footer>
+      </div>
       </main>
     </>
   );
