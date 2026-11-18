@@ -13,15 +13,21 @@ export default async function DashboardPage({
   const userId = claimsData?.claims?.sub;
   if (!userId) redirect("/login?next=%2Fdashboard");
 
-  const [{ data: profile }, { data: memberships }] = await Promise.all([
+  const [{ data: profile }, { data: memberships, error: membershipError }] = await Promise.all([
     supabase.from("profiles").select("full_name").eq("id", userId).maybeSingle(),
     supabase.from("organization_members").select("role, organizations(id, name)").eq("user_id", userId),
   ]);
+  if (membershipError) {
+    console.error("PropertyOS membership lookup failed:", membershipError.code);
+  }
 
   if (memberships?.length) redirect("/dashboard/operations");
 
-  const errorText = errorCode === "create" ? "Could not create the workspace. Please try again."
+  const errorText = membershipError ? "We could not verify your workspace membership. Refresh the page; if the problem continues, sign out and sign in again."
+    : errorCode === "create" ? "Could not create the workspace. Please try again."
     : errorCode === "membership" ? "Workspace created, but membership setup needs support."
+    : errorCode === "auth" ? "Your sign-in session could not be verified. Please sign in again."
+    : errorCode === "permission" ? "Your account is signed in, but the workspace permission check failed. Please sign out and sign in again."
     : errorCode === "workspace" ? "Enter a workspace name between 2 and 100 characters." : "";
 
   return (
