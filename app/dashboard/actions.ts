@@ -17,8 +17,11 @@ export async function createWorkspace(formData: FormData) {
   );
 
   if (error || !organizationId) {
+    // Keep the browser message safe while retaining a useful server-side diagnostic.
+    console.error("PropertyOS workspace creation failed:", error?.code ?? "empty_result");
     const code = error?.code === "28000" ? "auth"
       : error?.code === "22023" ? "workspace"
+      : error?.code === "42501" ? "permission"
       : "create";
     redirect(`/dashboard?error=${code}`);
   }
