@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/dashboard/", "/api/", "/auth/"],
+      disallow: ["/dashboard/", "/business-tools/", "/api/", "/auth/"],
     },
     sitemap: "https://propertyosai.cc.cd/sitemap.xml",
     host: "https://propertyosai.cc.cd",
