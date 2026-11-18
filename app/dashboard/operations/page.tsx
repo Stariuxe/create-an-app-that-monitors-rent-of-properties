@@ -16,7 +16,7 @@ export default async function OperationsPage({searchParams}:{searchParams:Promis
   supabase.from("leases").select("id,unit_id,tenant_id,monthly_rent,start_date,status").eq("organization_id",org.id).eq("status","active").limit(500),
   supabase.from("rent_charges").select("id,lease_id,billing_period,due_date,amount,amount_paid,status").eq("organization_id",org.id).order("due_date",{ascending:false}).limit(30),
   supabase.from("payments").select("id,amount,method,status,created_at").eq("organization_id",org.id).order("created_at",{ascending:false}).limit(10),
-  supabase.from("rent_charges").select("id,lease_id,billing_period,due_date,amount,amount_paid,status").eq("organization_id",org.id).neq("status","paid").order("due_date",{ascending:false}).limit(500)
+  supabase.from("rent_charges").select("id,lease_id,billing_period,due_date,amount,amount_paid,status").eq("organization_id",org.id).in("status",["unpaid","partially_paid"]).order("due_date",{ascending:false}).limit(500)
  ]);
  const properties=pr.data??[], units=ur.data??[], tenants=tr.data??[], leases=lr.data??[], charges=cr.data??[], payments=par.data??[], openCharges=ocr.data??[];
  const loadErrors=[pr.error,ur.error,tr.error,lr.error,cr.error,par.error,ocr.error].filter(Boolean);
