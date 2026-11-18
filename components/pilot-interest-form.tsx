@@ -18,9 +18,11 @@ declare global {
   }
 }
 
-const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? process.env.NEXT_2_TURNSTILE_SITE_KEY ?? "";
+
 
 export default function PilotInterestForm() {
+  const [siteKey, setSiteKey] = useState("");
+  const [configLoaded, setConfigLoaded] = useState(false);
   const [email, setEmail] = useState("");
   const [consent, setConsent] = useState(false);
   const [token, setToken] = useState("");
@@ -30,6 +32,16 @@ export default function PilotInterestForm() {
   const [success, setSuccess] = useState(false);
   const widget = useRef<string | null>(null);
   const challenge = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/pilot-interest/config", { cache: "no-store" })
+      .then(response => response.ok ? response.json() : Promise.reject(new Error("Configuration unavailable")))
+      .then(data => { if (active) setSiteKey(typeof data.siteKey === "string" ? data.siteKey : ""); })
+      .catch(() => { if (active) setSiteKey(""); })
+      .finally(() => { if (active) setConfigLoaded(true); });
+    return () => { active = false; };
+  }, []);
 
   useEffect(() => {
     if (!ready || !siteKey || !challenge.current || !window.turnstile || widget.current) return;
@@ -84,7 +96,7 @@ export default function PilotInterestForm() {
     }
   }
 
-  if (!siteKey) {
+  if (configLoaded && !siteKey) {
     return (
       <div>
         <h3>Pilot applications opening soon.</h3>
