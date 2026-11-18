@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "android:sync": "cap sync android"
   },
   "dependencies": {
     "@supabase/ssr": "0.7.0",
@@ -17,7 +18,10 @@
     "next": "^15.2.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "@capacitor/core": "^7.4.3"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@capacitor/cli": "^7.4.3"
+  }
 }
