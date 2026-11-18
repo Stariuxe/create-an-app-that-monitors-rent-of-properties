@@ -34,7 +34,7 @@ export default async function DashboardPage({
     <main style={{ minHeight: "100vh", background: "#f3f2ec", color: "#132c2a", padding: "32px 6%" }}>
       <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, borderBottom: "1px solid #d8dfd6", paddingBottom: 20 }}>
         <a href="/" style={{ fontWeight: 800, fontSize: 20 }}>PropertyOS <span style={{ color: "#639b86" }}>AI</span></a>
-        <form action={signOut}><button type="submit" style={{ border: "1px solid #bdcbc0", borderRadius: 6, padding: "9px 14px", background: "transparent", color: "#183b32" }}>Sign out</button></form>
+        <a href="/business-tools" style={{ color: "#183b32", fontSize: 13, fontWeight: 700, marginRight: 14 }}>Business tools →</a><form action={signOut}><button type="submit" style={{ border: "1px solid #bdcbc0", borderRadius: 6, padding: "9px 14px", background: "transparent", color: "#183b32" }}>Sign out</button></form>
       </header>
       <section style={{ maxWidth: 900, margin: "56px auto" }}>
         <p style={{ color: "#6d9e8b", fontSize: 11, letterSpacing: 2 }}>LANDLORD WORKSPACE</p>
