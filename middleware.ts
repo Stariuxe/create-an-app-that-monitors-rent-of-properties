@@ -5,11 +5,10 @@ export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  const isProtected = request.nextUrl.pathname.startsWith("/dashboard") || request.nextUrl.pathname.startsWith("/business-tools");
 
   if (!url || !key) {
-    if (request.nextUrl.pathname.startsWith("/dashboard")) {
-      return NextResponse.redirect(new URL("/login", request.url));
-    }
+    if (isProtected) return NextResponse.redirect(new URL("/login", request.url));
     return response;
   }
 
@@ -25,10 +24,8 @@ export async function middleware(request: NextRequest) {
   });
 
   const { data } = await supabase.auth.getClaims();
-  const isDashboard = request.nextUrl.pathname.startsWith("/dashboard");
   const isLogin = request.nextUrl.pathname === "/login";
-
-  if (isDashboard && !data?.claims) {
+  if (isProtected && !data?.claims) {
     const redirectUrl = new URL("/login", request.url);
     redirectUrl.searchParams.set("next", request.nextUrl.pathname);
     return NextResponse.redirect(redirectUrl);
@@ -38,5 +35,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/login"],
+  matcher: ["/dashboard/:path*", "/business-tools/:path*", "/login"],
 };
