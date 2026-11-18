@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     if (body.consent !== true) return json({ error: "Consent is required to submit a pilot enquiry." }, 400);
     if (!token) return json({ error: "Complete the security check and try again." }, 400);
 
-    const turnstileSecret = process.env.TURNSTILE_SECRET_KEY;
+    const turnstileSecret = process.env.TURNSTILE_SECRET_KEY ?? process.env.TURNSTILE_SECRET_KEY_12_;
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
     if (!turnstileSecret || !supabaseUrl || !serviceKey) {
