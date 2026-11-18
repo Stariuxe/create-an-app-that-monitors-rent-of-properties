@@ -3,8 +3,10 @@
 import { useState, type FormEvent } from "react";
 import { createClient } from "@/lib/supabase/client";
 
-export default function LoginForm() {
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+type LoginFormProps = { initialMode?: "signin" | "signup" };
+
+export default function LoginForm({ initialMode = "signin" }: LoginFormProps) {
+  const [mode, setMode] = useState<"signin" | "signup">(initialMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
