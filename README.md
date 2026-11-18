@@ -5,7 +5,7 @@ A responsive cinematic marketing website for PropertyOS AI, a Kenya-first proper
 ## Experience
 - Architectural hero scene built with CSS (no WebGL dependency).
 - Editorial product story, dashboard concept preview, feature overview and workflow.
-- Pilot interest form interaction (client-side demo only; not connected to a backend).
+- Pilot enquiry form with server-side validation, Cloudflare Turnstile verification, explicit consent, and private database storage (requires deployment secrets before it accepts enquiries).
 - FAQ accordion and responsive navigation.
 - Reduced-motion support and semantic HTML.
 
@@ -23,7 +23,7 @@ npm run dev
 Open http://localhost:3000.
 
 ## Production readiness
-1. Connect the pilot form to a secure backend or approved form provider; add server-side validation, spam protection and consent handling.
+1. Configure `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` in Vercel Production and Preview; keep the service-role key server-only. Then test a real enquiry and verify it appears in `public.pilot_leads`.
 2. Add a real privacy notice, terms and company contact details.
 3. Replace sample dashboard values with verified product data only when the product backend is ready. Current values are illustrative.
 4. Confirm feature availability before publishing. Tenant portal, M-Pesa, automated reminders and AI insights are planned, not represented as live.
@@ -50,3 +50,12 @@ Nairobi, Kenya.
 - Supabase database/storage encryption at rest and TLS are platform-level controls; verify the current project configuration and use RLS for tenant/property-level authorization before storing live customer data.
 - The CSP is a baseline and must be tested against every production integration before tightening further.
 - Run `npm run build` and browser checks after each security-header or PWA change.
+
+
+## Pilot enquiry capture
+- The homepage form posts to `/api/pilot-interest`.
+- Cloudflare Turnstile is required and verified server-side, with the hostname checked against the request origin.
+- The database table `public.pilot_leads` stores the normalized email, consent timestamp/version, source and creation timestamp only.
+- RLS is enabled and direct `anon` / `authenticated` table privileges are revoked. The API uses a server-only Supabase service key after challenge verification.
+- Until all three Vercel environment variables are configured, the page deliberately shows that pilot registration is opening soon and does not collect personal data.
+- Never add the Supabase service-role/secret key to a `NEXT_PUBLIC_*` variable or client component.
