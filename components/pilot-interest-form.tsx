@@ -18,7 +18,7 @@ declare global {
   }
 }
 
-const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
+const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? process.env.NEXT_2_TURNSTILE_SITE_KEY ?? "";
 
 export default function PilotInterestForm() {
   const [email, setEmail] = useState("");
