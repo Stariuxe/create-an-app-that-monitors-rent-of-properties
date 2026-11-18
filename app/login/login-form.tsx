@@ -9,6 +9,7 @@ export default function LoginForm({ initialMode = "signin" }: LoginFormProps) {
   const [mode, setMode] = useState<"signin" | "signup">(initialMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [fullName, setFullName] = useState("");
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState<"success" | "error" | "info">("info");
@@ -81,7 +82,55 @@ export default function LoginForm({ initialMode = "signin" }: LoginFormProps) {
       <label htmlFor="email" style={{ fontSize: 12, color: "#53665c" }}>Email address</label>
       <input id="email" type="email" autoComplete="email" required value={email} onChange={e => setEmail(e.target.value)} style={field} />
       <label htmlFor="password" style={{ fontSize: 12, color: "#53665c" }}>Password</label>
-      <input id="password" type="password" autoComplete={mode === "signin" ? "current-password" : "new-password"} minLength={8} required value={password} onChange={e => setPassword(e.target.value)} style={field} />
+      <div style={{ position: "relative", marginTop: 7, marginBottom: 16 }}>
+        <input
+          id="password"
+          type={showPassword ? "text" : "password"}
+          autoComplete={mode === "signin" ? "current-password" : "new-password"}
+          minLength={8}
+          required
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          style={{ ...field, marginTop: 0, marginBottom: 0, paddingRight: 48 }}
+        />
+        <button
+          type="button"
+          onClick={() => setShowPassword(visible => !visible)}
+          aria-label={showPassword ? "Hide password" : "Show password"}
+          aria-pressed={showPassword}
+          title={showPassword ? "Hide password" : "Show password"}
+          style={{
+            position: "absolute",
+            right: 8,
+            top: "50%",
+            transform: "translateY(-50%)",
+            display: "grid",
+            placeItems: "center",
+            width: 36,
+            height: 36,
+            padding: 0,
+            border: 0,
+            borderRadius: 6,
+            background: "transparent",
+            color: "#53665c",
+            cursor: "pointer",
+          }}
+        >
+          {showPassword ? (
+            <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 3l18 18" />
+              <path d="M10.6 10.6a2 2 0 002.8 2.8" />
+              <path d="M9.9 5.2A10.8 10.8 0 0112 5c5 0 8.5 4.5 9.5 7-.4 1-1.2 2.1-2.3 3.1" />
+              <path d="M6.2 6.2C3.9 7.7 2.7 9.7 2.5 12c1 2.5 4.5 7 9.5 7 1.2 0 2.3-.2 3.3-.7" />
+            </svg>
+          ) : (
+            <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M2.5 12s3.5-7 9.5-7 9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          )}
+        </button>
+      </div>
       <button disabled={busy} type="submit" style={{ width: "100%", padding: 14, border: 0, borderRadius: 6, background: "#183b32", color: "#fff", fontWeight: 700, cursor: busy ? "wait" : "pointer", opacity: busy ? 0.7 : 1 }}>{busy ? "Please wait…" : mode === "signin" ? "Sign in securely →" : "Create landlord account →"}</button>
       {message && <p role={messageType === "error" ? "alert" : "status"} aria-live="polite" style={{ marginTop: 16, padding: 12, borderRadius: 6, fontSize: 13, lineHeight: 1.6, color: messageType === "error" ? "#8a3829" : "#315c49", background: messageType === "error" ? "#f9e8e2" : "#e7eee7" }}>{message}</p>}
       <p style={{ marginTop: 20, fontSize: 11, lineHeight: 1.6, color: "#7a8780" }}>Your account is protected by secure sign-in. Use a strong, unique password.</p>
