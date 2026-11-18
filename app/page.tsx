@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import InstallAppButton from "@/components/install-app-button";
+import PilotInterestForm from "@/components/pilot-interest-form";
 
 const features = [
   { number: "01", title: "Property command centre", text: "See your properties and units in one organised view. Know what you manage without digging through scattered records.", icon: "⌂" },
@@ -63,15 +64,7 @@ function DashboardPreview() {
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [email, setEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
   const [faqOpen, setFaqOpen] = useState<number | null>(0);
-
-  function submitInterest(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (!email.trim()) return;
-    setSubmitted(true);
-  }
 
   const closeMenu = () => setMenuOpen(false);
 
@@ -125,7 +118,7 @@ export default function Home() {
 
       <section className="pilot-section" id="pilot">
         <div className="pilot-copy"><div className="section-index">[ FIRST ACCESS ]</div><h2>Help shape the<br /><em>future of renting.</em></h2><p>We’re inviting a small group of landlords and property managers to explore the early product, share their workflows and help us build what matters most.</p><div className="pilot-points"><span>✳ Early product access</span><span>✳ Direct feedback channel</span><span>✳ Help shape the roadmap</span></div></div>
-        <div className="pilot-form-card"><div className="form-eyebrow">PROPERTYOS AI / PILOT PROGRAMME</div>{submitted ? <div className="success-state"><div className="success-icon">✓</div><h3>You’re on our radar.</h3><p>Thanks for your interest. This demo form has recorded your entry in this page session only. Connect a form service or backend before collecting real enquiries.</p><button onClick={()=>{setSubmitted(false);setEmail("");}}>Add another email ↗</button></div> : <><h3>Get on the list.</h3><p>Leave your email and we’ll be in touch when pilot applications open.</p><form onSubmit={submitInterest}><label htmlFor="pilot-email">WORK EMAIL</label><input id="pilot-email" type="email" placeholder="you@company.com" value={email} onChange={e=>setEmail(e.target.value)} required /><button className="button button-primary form-button" type="submit">Register interest <span>↗</span></button></form><small className="form-disclaimer">By submitting, you agree to be contacted about the PropertyOS AI pilot. This demo form does not send or save your details. Read our privacy policy before using the service.</small></>}</div>
+        <div className="pilot-form-card"><div className="form-eyebrow">PROPERTYOS AI / PILOT PROGRAMME</div><PilotInterestForm /></div>
       </section>
 
       <section className="faq-section" id="faq"><div className="faq-intro"><div className="section-index">[ GOOD TO KNOW ]</div><h2>Questions,<br /><em>considered.</em></h2><p>A few things to know as we prepare the first release.</p></div><div className="faq-list">{[
