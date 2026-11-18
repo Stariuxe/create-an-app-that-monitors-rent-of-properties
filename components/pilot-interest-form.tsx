@@ -55,7 +55,7 @@ export default function PilotInterestForm() {
       if (widget.current && window.turnstile?.remove) window.turnstile.remove(widget.current);
       widget.current = null;
     };
-  }, [ready]);
+  }, [ready, siteKey]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
