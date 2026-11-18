@@ -102,6 +102,7 @@ export default async function OwnerControlCentre() {
             <h1 style={{ fontSize: 25, margin: "6px 0 0" }}>Owner Control Centre</h1>
           </div>
           <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+            <a href="/owner/business" style={{ color: "#246b55", fontWeight: 700 }}>Company performance & bots</a>
             <a href="/dashboard" style={{ color: "#246b55" }}>PropertyOS workspace</a>
             <a href="/" style={{ color: "#246b55" }}>Public website</a>
           </div>
