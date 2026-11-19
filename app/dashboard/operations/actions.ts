@@ -3,6 +3,24 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 
+function isReasonableDate(value: string, maxYearsAhead = 10) {
+  if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(value)) return false;
+  const [year, month, day] = value.split("-").map(Number);
+  const parsed = new Date(Date.UTC(year, month - 1, day));
+  const currentYear = new Date().getUTCFullYear();
+  return year >= 2000 && year <= currentYear + maxYearsAhead &&
+    parsed.getUTCFullYear() === year &&
+    parsed.getUTCMonth() === month - 1 &&
+    parsed.getUTCDate() === day;
+}
+
+function isReasonableBillingPeriod(value: string) {
+  if (!/^\\d{4}-\\d{2}$/.test(value)) return false;
+  const [year, month] = value.split("-").map(Number);
+  const currentYear = new Date().getUTCFullYear();
+  return year >= 2000 && year <= currentYear + 10 && month >= 1 && month <= 12;
+}
+
 async function workspace(formData: FormData) {
   const requestedOrganizationId = String(formData.get("organization_id") ?? "").trim();
   const supabase = await createClient();
