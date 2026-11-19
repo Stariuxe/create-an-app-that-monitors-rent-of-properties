@@ -63,15 +63,7 @@ function DashboardPreview() {
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [email, setEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
   const [faqOpen, setFaqOpen] = useState<number | null>(0);
-
-  function submitInterest(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (!email.trim()) return;
-    setSubmitted(true);
-  }
 
   const closeMenu = () => setMenuOpen(false);
 
@@ -79,7 +71,7 @@ export default function Home() {
     <>
       <a className="skip-link" href="#main-content">Skip to content</a>
       <main id="top">
-      <div className="announcement"><span className="announcement-pill">EARLY ACCESS</span> We’re preparing our first landlord pilot. <a href="#pilot">Join the interest list <span>↗</span></a></div>
+      <div className="announcement"><span className="announcement-pill">LANDLORD ONBOARDING</span> PropertyOS AI is welcoming landlords for guided product introductions. <a href="#pilot">Talk to our team <span>↗</span></a></div>
       <header className="site-header">
         <Brand />
         <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle navigation" aria-expanded={menuOpen}><span /><span /></button>
@@ -93,10 +85,10 @@ export default function Home() {
       <section className="hero">
         <div className="hero-copy">
           <div className="kicker"><span className="kicker-line" /> PROPERTY MANAGEMENT, REIMAGINED</div>
-          <h1>Own the details.<br /><em>See the bigger</em> <span>picture.</span></h1>
-          <p className="hero-description">A clearer way to manage your rental portfolio. Bring properties, tenants, leases and rent workflows into one intelligent workspace.</p>
-          <div className="hero-actions"><a className="button button-primary" href="/signup">Create your account <span>↗</span></a><a className="text-link" href="#platform">Explore the portfolio tools <span>↓</span></a></div>
-          <div className="hero-proof"><div className="proof-avatars"><i>✦</i><i>⌂</i><i>◈</i></div><div><b>Made for modern landlords</b><small>Designed with rental operations in mind</small></div></div>
+          <h1>Run your rentals<br /><em>with clarity.</em> <span>and control.</span></h1>
+          <p className="hero-description">Bring your property records, units, tenants, leases and rent charges into one organised workspace. See the details that matter and spend less time piecing information together.</p>
+          <div className="hero-actions"><a className="button button-primary" href="#pilot">Talk to our team <span>↗</span></a><a className="text-link" href="#platform">Explore the platform <span>↓</span></a></div>
+          <div className="hero-proof"><div className="proof-avatars"><i>✦</i><i>⌂</i><i>◈</i></div><div><b>Designed for Kenyan rental operations</b><small>Practical tools for landlords and property managers</small></div></div>
         </div>
         <BuildingScene />
         <div className="hero-bottom"><span>01 / A BETTER WAY TO MANAGE</span><span>SCROLL TO EXPLORE ↓</span><span>KENYA · BUILT FOR GROWTH</span></div>
@@ -104,11 +96,11 @@ export default function Home() {
 
       <section className="intro-band" id="why-propertyos">
         <div className="section-index">[ THE BIGGER PICTURE ]</div>
-        <div className="intro-content"><h2>Less chasing.<br /><span>More knowing.</span></h2><div><p>Rental operations shouldn’t depend on scattered spreadsheets, forgotten messages and end-of-month guesswork.</p><p>PropertyOS AI is being built to give landlords a more connected view of the details that keep a portfolio moving.</p><a className="underlined-link" href="#how-it-works">A more considered way to manage <span>↗</span></a></div></div>
+        <div className="intro-content"><h2>Less chasing.<br /><span>More knowing.</span></h2><div><p>Rental operations are easier to manage when the important details are organised in one place.</p><p>PropertyOS AI brings property, unit, tenant, lease and rent-charge records into a connected workspace—helping landlords keep clearer records and follow up with greater confidence.</p><a className="underlined-link" href="#how-it-works">A more considered way to manage <span>↗</span></a></div></div>
       </section>
 
       <section className="platform-section" id="platform">
-        <div className="section-heading"><div><div className="section-index">[ THE PLATFORM ]</div><h2>One workspace.<br /><em>Every moving part.</em></h2></div><p>From the first unit to the monthly numbers, bring the essential parts of property management into clearer view.</p></div>
+        <div className="section-heading"><div><div className="section-index">[ THE PLATFORM ]</div><h2>One workspace.<br /><em>Every moving part.</em></h2></div><p>Keep the essential records of your rental portfolio connected—from properties and units to tenants, leases and rent charges.</p></div>
         <DashboardPreview />
         <div className="dashboard-note"><span className="note-line" /> A look at the experience we’re building. Figures shown are illustrative, not live data.</div>
         <div className="feature-grid">{features.map((f)=><article className="feature-card" key={f.number}><div className="feature-top"><span>{f.number} / 04</span><span className="feature-icon">{f.icon}</span></div><h3>{f.title}</h3><p>{f.text}</p><a href="#pilot" aria-label={"Ask about "+f.title}>Explore capability <span>↗</span></a></article>)}</div>
@@ -121,22 +113,22 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="statement-section"><div className="statement-glow" /><div className="section-index">[ THE PROPERTYOS POINT OF VIEW ]</div><h2>Your properties<br />are an investment.<br /><em>Your systems should<br />work like one.</em></h2><p>Every property. Every tenant. Every detail — in a clearer picture.</p><a className="button button-light" href="/signup">Create your account <span>↗</span></a><div className="statement-coordinate">01°17′S 36°49′E <span>NAIROBI, KENYA</span></div></section>
+      <section className="statement-section"><div className="statement-glow" /><div className="section-index">[ THE PROPERTYOS POINT OF VIEW ]</div><h2>Your properties<br />are an investment.<br /><em>Your systems should<br />work like one.</em></h2><p>Every property. Every tenant. Every detail — in a clearer picture.</p><a className="button button-light" href="#pilot">Speak with PropertyOS AI <span>↗</span></a><div className="statement-coordinate">01°17′S 36°49′E <span>NAIROBI, KENYA</span></div></section>
 
       <section className="pilot-section" id="pilot">
-        <div className="pilot-copy"><div className="section-index">[ FIRST ACCESS ]</div><h2>Help shape the<br /><em>future of renting.</em></h2><p>We’re inviting a small group of landlords and property managers to explore the early product, share their workflows and help us build what matters most.</p><div className="pilot-points"><span>✳ Early product access</span><span>✳ Direct feedback channel</span><span>✳ Help shape the roadmap</span></div></div>
-        <div className="pilot-form-card"><div className="form-eyebrow">PROPERTYOS AI / PILOT PROGRAMME</div>{submitted ? <div className="success-state"><div className="success-icon">✓</div><h3>You’re on our radar.</h3><p>Thanks for your interest. This demo form has recorded your entry in this page session only. Connect a form service or backend before collecting real enquiries.</p><button onClick={()=>{setSubmitted(false);setEmail("");}}>Add another email ↗</button></div> : <><h3>Get on the list.</h3><p>Leave your email and we’ll be in touch when pilot applications open.</p><form onSubmit={submitInterest}><label htmlFor="pilot-email">WORK EMAIL</label><input id="pilot-email" type="email" placeholder="you@company.com" value={email} onChange={e=>setEmail(e.target.value)} required /><button className="button button-primary form-button" type="submit">Register interest <span>↗</span></button></form><small className="form-disclaimer">By submitting, you agree to be contacted about the PropertyOS AI pilot. This demo form does not send or save your details. Read our privacy policy before using the service.</small></>}</div>
+        <div className="pilot-copy"><div className="section-index">[ LET’S TALK PROPERTY ]</div><h2>Make your rental<br /><em>operations clearer.</em></h2><p>See how PropertyOS AI can help you organise your portfolio, maintain connected tenant and lease records, and keep rent charges visible. Contact our team for a guided introduction and onboarding conversation.</p><div className="pilot-points"><span>✳ One organised property workspace</span><span>✳ Clearer rent-charge records</span><span>✳ Guided product introduction</span></div></div>
+        <div className="pilot-form-card"><div className="form-eyebrow">PROPERTYOS AI / SALES ENQUIRIES</div><h3>Let’s discuss your portfolio.</h3><p>Tell us about your rental operations and arrange a guided introduction to PropertyOS AI.</p><a className="button button-primary form-button" href="mailto:hello@propertyos.ai?subject=PropertyOS%20AI%20Sales%20Enquiry">Contact our team <span>↗</span></a><small className="form-disclaimer">Email us to discuss product access, onboarding and current feature availability. We’ll explain what is available today and what is on the roadmap.</small></div>
       </section>
 
       <section className="faq-section" id="faq"><div className="faq-intro"><div className="section-index">[ GOOD TO KNOW ]</div><h2>Questions,<br /><em>considered.</em></h2><p>A few things to know as we prepare the first release.</p></div><div className="faq-list">{[
-        ["Is PropertyOS AI available now?","PropertyOS AI is in development and preparing for an early pilot. Join the interest list to hear when applications open."],
-        ["Who is it designed for?","The first release is being shaped for individual landlords, property managers and owners of residential rental portfolios."],
-        ["Can tenants pay rent through the platform?","A tenant payment portal and payment integrations are planned. They should not be treated as live until released and tested."],
-        ["Does it send automatic rent reminders?","Automated reminders are part of the planned product direction. Availability will be confirmed when the feature is ready."],
-        ["How will my information be protected?","Review the Privacy Policy for how the service is intended to handle information. The pilot is still being prepared; do not upload real tenant information until onboarding and security controls have been reviewed."]
+        ["Can I explore PropertyOS AI now?","Yes. We are welcoming landlord enquiries and guided product introductions. Contact our team to discuss access, onboarding and the capabilities currently available."],
+        ["Who should choose PropertyOS AI?","Individual landlords and property managers who want connected property, unit, tenant, lease and rent-charge records in one workspace, with a product direction focused on the needs of Kenyan rental operations."],
+        ["Can tenants pay rent through the platform?","Payment collection integrations are being developed and tested separately. Contact us to confirm the current payment options; do not assume in-app M-Pesa collection is live."],
+        ["Does it send automatic rent reminders?","Automated reminders are on the product roadmap. Today, landlords can organise rent-charge records and use the workspace to review what needs follow-up."],
+        ["How will my information be protected?","We take data handling seriously. Review our Privacy Policy and Terms before using the service, use a strong unique password, and never enter M-Pesa PINs or OTPs. We will explain the current data-handling arrangements during onboarding."]
       ].map(([q,a],i)=><div className={faqOpen===i?"faq-item faq-active":"faq-item"} key={q}><button onClick={()=>setFaqOpen(faqOpen===i?null:i)} aria-expanded={faqOpen===i}><span>{q}</span><i>{faqOpen===i?"−":"+"}</i></button>{faqOpen===i&&<p>{a}</p>}</div>)}</div></section>
 
-      <footer className="footer"><div className="footer-top"><div><Brand /><p>Property operations,<br />in a clearer perspective.</p></div><div className="footer-links"><div><b>EXPLORE</b><a href="#platform">Platform</a><a href="#how-it-works">How it works</a><a href="#faq">FAQs</a></div><div><b>GET STARTED</b><a href="/signup">Create account</a><a href="/login">Sign in</a><a href="#pilot">Pilot programme</a><a href="mailto:hello@propertyos.ai">hello@propertyos.ai</a></div><div><b>LEGAL</b><a href="/privacy">Privacy policy</a><a href="/terms">Terms of use</a></div></div></div><div className="footer-bottom"><span>© 2026 PROPERTYOS AI. ALL RIGHTS RESERVED.</span><span>EVERY PROPERTY. UNDER CONTROL.</span><span>NAIROBI, KENYA</span></div><p className="legal-note">PropertyOS AI Limited is a proposed company name pending registration approval. Product features described as planned or in development are not represented as currently available.</p></footer>
+      <footer className="footer"><div className="footer-top"><div><Brand /><p>Property operations,<br />in a clearer perspective.</p></div><div className="footer-links"><div><b>EXPLORE</b><a href="#platform">Platform</a><a href="#how-it-works">How it works</a><a href="#faq">FAQs</a></div><div><b>GET STARTED</b><a href="/signup">Create account</a><a href="/login">Sign in</a><a href="#pilot">Pilot programme</a><a href="mailto:hello@propertyos.ai">hello@propertyos.ai</a></div><div><b>LEGAL</b><a href="/privacy">Privacy policy</a><a href="/terms">Terms of use</a></div></div></div><div className="footer-bottom"><span>© 2026 PROPERTYOS AI. ALL RIGHTS RESERVED.</span><span>EVERY PROPERTY. UNDER CONTROL.</span><span>NAIROBI, KENYA</span></div><p className="legal-note">PropertyOS AI is a product initiative under Stariuxe Enterprises. The name PropertyOS AI Limited remains subject to the relevant registration process. Product capabilities and payment integrations are described according to their current availability; contact us for a guided demonstration.</p></footer>
       </div>
       </main>
     </>
