@@ -254,3 +254,65 @@ export async function startMpesaSandboxPayment(f: FormData) {
 
   redirect("/dashboard/operations?success=mpesa");
 }
+
+export async function addPaymentCollectionMethod(f: FormData) {
+  const { supabase, organization_id } = await workspace(f);
+  const method_type = String(f.get("method_type") ?? "");
+  const display_name = String(f.get("display_name") ?? "").trim();
+  const account_name = String(f.get("account_name") ?? "").trim();
+  const provider_name = String(f.get("provider_name") ?? "").trim();
+  const phone_number = String(f.get("phone_number") ?? "").trim();
+  const account_number = String(f.get("account_number") ?? "").trim();
+  const swift_bic = String(f.get("swift_bic") ?? "").trim();
+  const currency_code = String(f.get("currency_code") ?? "").trim().toUpperCase();
+  const country = String(f.get("country") ?? "").trim();
+  const payment_url = String(f.get("payment_url") ?? "").trim();
+  const instructions = String(f.get("instructions") ?? "").trim();
+  if (!["mpesa","mobile_money","bank","bank_transfer","paypal","wise","stripe","card","cash","other"].includes(method_type) || display_name.length < 2 || display_name.length > 100
+    || account_name.length > 120 || provider_name.length > 80 || phone_number.length > 32 || account_number.length > 80 || swift_bic.length > 20 || (currency_code && !/^[A-Z]{3}$/.test(currency_code)) || country.length > 80 || payment_url.length > 500 || (payment_url && !payment_url.toLowerCase().startsWith("https://")) || instructions.length > 500) {
+    redirect("/dashboard/operations?error=payment_method");
+  }
+  if (method_type === "mpesa" && !normalizeMpesaPhone(phone_number)) redirect("/dashboard/operations?error=payment_method");
+  if (["bank","bank_transfer"].includes(method_type) && !account_number) redirect("/dashboard/operations?error=payment_method");
+  const { data: claims } = await supabase.auth.getClaims();
+  const userId = claims?.claims?.sub;
+  const { error } = await supabase.from("payment_collection_methods").insert({
+    organization_id, method_type, display_name, account_name: account_name || null,
+    provider_name: provider_name || null, phone_number: phone_number || null,
+    account_number: account_number || null, swift_bic: swift_bic || null,
+    currency_code: currency_code || null, country: country || null,
+    payment_url: payment_url || null, instructions: instructions || null,
+    created_by: userId,
+  });
+  if (error) {
+    console.error("PropertyOS payment method insert failed:", error.code);
+    redirect("/dashboard/operations?error=payment_method");
+  }
+  revalidatePath("/dashboard/operations");
+  redirect("/dashboard/operations?success=payment_method");
+}
+
+export async function recordCashPayment(f: FormData) {
+  const { supabase, organization_id } = await workspace(f);
+  const rent_charge_id = String(f.get("rent_charge_id") ?? "");
+  const amount = Number(f.get("amount"));
+  const received_from = String(f.get("received_from") ?? "").trim();
+  const reference = String(f.get("reference") ?? "").trim();
+  if (!rent_charge_id || !Number.isInteger(amount) || amount <= 0 || received_from.length > 120 || reference.length > 120) {
+    redirect("/dashboard/operations?error=cash_payment");
+  }
+  const { error } = await supabase.rpc("record_cash_rent_payment", {
+    p_organization_id: organization_id,
+    p_rent_charge_id: rent_charge_id,
+    p_amount: amount,
+    p_received_from: received_from || null,
+    p_reference: reference || null,
+  });
+  if (error) {
+    console.error("PropertyOS cash payment recording failed:", error.code);
+    redirect("/dashboard/operations?error=cash_payment");
+  }
+  revalidatePath("/dashboard/operations");
+  revalidatePath("/dashboard/portfolio");
+  redirect("/dashboard/operations?success=cash_payment");
+}
