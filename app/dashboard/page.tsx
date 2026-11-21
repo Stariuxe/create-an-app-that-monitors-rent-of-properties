@@ -23,7 +23,25 @@ export default async function DashboardPage({
 
   if (memberships?.length) redirect("/dashboard/operations");
 
-  const errorText = membershipError ? "We could not verify your workspace membership. Refresh the page; if the problem continues, sign out and sign in again."
+  // First successful visit after signup/sign-in automatically provisions the
+  // landlord's private workspace. The database RPC validates auth.uid() and
+  // creates the organization + landlord membership atomically.
+  let automaticWorkspaceError = false;
+  if (!membershipError && !memberships?.length) {
+    const emailName = String(claimsData?.claims?.email ?? "").split("@")[0];
+    const baseName = (profile?.full_name?.trim() || emailName || "My").slice(0, 84);
+    const workspaceName = `${baseName} Properties`;
+    const { data: workspaceId, error: workspaceError } = await supabase.rpc(
+      "create_workspace_for_current_user",
+      { p_name: workspaceName }
+    );
+    if (!workspaceError && workspaceId) redirect("/dashboard/operations");
+    automaticWorkspaceError = true;
+    console.error("PropertyOS automatic workspace provisioning failed:", workspaceError?.code ?? "empty_result");
+  }
+
+  const errorText = automaticWorkspaceError ? "Your account is active, but automatic workspace setup needs one more step. You can create it below."
+    : membershipError ? "We could not verify your workspace membership. Refresh the page; if the problem continues, sign out and sign in again."
     : errorCode === "create" ? "Could not create the workspace. Please try again."
     : errorCode === "membership" ? "Workspace created, but membership setup needs support."
     : errorCode === "auth" ? "Your sign-in session could not be verified. Please sign in again."
