@@ -263,19 +263,25 @@ export async function addPaymentCollectionMethod(f: FormData) {
   const provider_name = String(f.get("provider_name") ?? "").trim();
   const phone_number = String(f.get("phone_number") ?? "").trim();
   const account_number = String(f.get("account_number") ?? "").trim();
+  const swift_bic = String(f.get("swift_bic") ?? "").trim();
+  const currency_code = String(f.get("currency_code") ?? "").trim().toUpperCase();
+  const country = String(f.get("country") ?? "").trim();
+  const payment_url = String(f.get("payment_url") ?? "").trim();
   const instructions = String(f.get("instructions") ?? "").trim();
-  if (!["mpesa","bank","cash","other"].includes(method_type) || display_name.length < 2 || display_name.length > 100
-    || account_name.length > 120 || provider_name.length > 80 || phone_number.length > 32 || account_number.length > 80 || instructions.length > 500) {
+  if (!["mpesa","mobile_money","bank","bank_transfer","paypal","wise","stripe","card","cash","other"].includes(method_type) || display_name.length < 2 || display_name.length > 100
+    || account_name.length > 120 || provider_name.length > 80 || phone_number.length > 32 || account_number.length > 80 || swift_bic.length > 20 || (currency_code && !/^[A-Z]{3}$/.test(currency_code)) || country.length > 80 || payment_url.length > 500 || (payment_url && !payment_url.toLowerCase().startsWith("https://")) || instructions.length > 500) {
     redirect("/dashboard/operations?error=payment_method");
   }
   if (method_type === "mpesa" && !normalizeMpesaPhone(phone_number)) redirect("/dashboard/operations?error=payment_method");
-  if (method_type === "bank" && !account_number) redirect("/dashboard/operations?error=payment_method");
+  if (["bank","bank_transfer"].includes(method_type) && !account_number) redirect("/dashboard/operations?error=payment_method");
   const { data: claims } = await supabase.auth.getClaims();
   const userId = claims?.claims?.sub;
   const { error } = await supabase.from("payment_collection_methods").insert({
     organization_id, method_type, display_name, account_name: account_name || null,
     provider_name: provider_name || null, phone_number: phone_number || null,
-    account_number: account_number || null, instructions: instructions || null,
+    account_number: account_number || null, swift_bic: swift_bic || null,
+    currency_code: currency_code || null, country: country || null,
+    payment_url: payment_url || null, instructions: instructions || null,
     created_by: userId,
   });
   if (error) {
