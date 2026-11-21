@@ -2,11 +2,13 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { addPortfolioRecord } from "./actions";
 
-const card: React.CSSProperties = { background: "#fff", border: "1px solid #dce4dc", borderRadius: 12, padding: 20 };
-const input: React.CSSProperties = { width: "100%", padding: 11, border: "1px solid #cfd9d0", borderRadius: 7, marginTop: 6, marginBottom: 12, color: "#132c2a", background: "#fff" };
-const button: React.CSSProperties = { width: "100%", padding: 12, border: 0, borderRadius: 7, background: "#183b32", color: "#fff", fontWeight: 700, cursor: "pointer" };
+const palette = { ink: "#172b35", muted: "#718087", green: "#079b72", pale: "#f3f6f6", line: "#e7eded", red: "#e77c70", amber: "#e9ad4d", blue: "#4778c7", purple: "#7764cf" };
+const card: React.CSSProperties = { background: "#fff", border: `1px solid ${palette.line}`, borderRadius: 18, padding: 20, boxShadow: "0 5px 20px rgba(28,55,60,.045)" };
+const input: React.CSSProperties = { width: "100%", padding: 11, border: `1px solid ${palette.line}`, borderRadius: 9, marginTop: 6, marginBottom: 12, color: palette.ink, background: "#fff" };
+const button: React.CSSProperties = { width: "100%", padding: 13, border: 0, borderRadius: 10, background: palette.green, color: "#fff", fontWeight: 750, cursor: "pointer" };
 const money = (value: number) => "KES " + Math.round(value).toLocaleString("en-KE");
 const types: Record<string,string> = { expense: "Expenses", maintenance: "Maintenance", compliance: "Compliance", mortgage: "Mortgage", valuation: "Property valuation", other_income: "Other income" };
+const nav = [{label:"Dashboard",href:"/dashboard/portfolio",icon:"▦"},{label:"Properties",href:"/dashboard/operations",icon:"⌂"},{label:"Tenancies",href:"/dashboard/operations",icon:"▣"},{label:"Maintenance",href:"/dashboard/portfolio#records",icon:"⚒"},{label:"Income",href:"/dashboard/portfolio#income",icon:"＋"},{label:"Expenses",href:"/dashboard/portfolio#records",icon:"−"},{label:"Reports",href:"/dashboard/portfolio#performance",icon:"▤"},{label:"Property operations",href:"/dashboard/operations",icon:"⚙"}];
 
 export default async function PortfolioPage({ searchParams }: { searchParams: Promise<{ error?: string; saved?: string }> }) {
   const params = await searchParams;
@@ -14,121 +16,82 @@ export default async function PortfolioPage({ searchParams }: { searchParams: Pr
   const { data: claims } = await supabase.auth.getClaims();
   const userId = claims?.claims?.sub;
   if (!userId) redirect("/login?next=%2Fdashboard%2Fportfolio");
-
-  const { data: memberships } = await supabase.from("organization_members")
-    .select("organization_id,role,organizations(id,name)")
-    .eq("user_id", userId);
+  const { data: memberships } = await supabase.from("organization_members").select("organization_id,role,organizations(id,name)").eq("user_id", userId);
   const membership = memberships?.find((item: any) => ["landlord","property_manager","accountant"].includes(item.role));
   const org = membership ? (Array.isArray(membership.organizations) ? membership.organizations[0] : membership.organizations) : null;
-  if (!org) return <main style={{ padding: 32, background: "#f3f2ec", minHeight: "100vh", color: "#132c2a" }}><a href="/dashboard/operations">← Property operations</a><h1>Portfolio workspace unavailable</h1><p>Create or select a landlord workspace first.</p></main>;
+  if (!org) return <main style={{ padding: 32, background: palette.pale, minHeight: "100vh", color: palette.ink }}><a href="/dashboard/operations">← Property operations</a><h1>Portfolio workspace unavailable</h1><p>Create or select a landlord workspace first.</p></main>;
 
   const [propertyResult, unitResult, leaseResult, chargeResult, recordResult] = await Promise.all([
     supabase.from("properties").select("id,name,address,county").eq("organization_id", org.id).order("name").limit(500),
     supabase.from("units").select("id,property_id,status,monthly_rent").eq("organization_id", org.id).limit(2000),
-    supabase.from("leases").select("id,unit_id,status,monthly_rent").eq("organization_id", org.id).eq("status","active").limit(2000),
+    supabase.from("leases").select("id,unit_id,status,monthly_rent").eq("organization_id", org.id).limit(2000),
     supabase.from("rent_charges").select("lease_id,amount,amount_paid,status").eq("organization_id", org.id).limit(5000),
     supabase.from("property_portfolio_records").select("id,property_id,record_type,title,amount,record_date,due_date,status,notes").eq("organization_id", org.id).order("record_date",{ascending:false}).limit(2000),
   ]);
-  const properties = propertyResult.data ?? [];
-  const units = unitResult.data ?? [];
-  const leases = leaseResult.data ?? [];
-  const charges = chargeResult.data ?? [];
-  const records = recordResult.data ?? [];
+  const properties = propertyResult.data ?? [], units = unitResult.data ?? [], leases = leaseResult.data ?? [], charges = chargeResult.data ?? [], records = recordResult.data ?? [];
+  const activeLeases = leases.filter((l:any) => l.status === "active");
+  const expiredLeases = leases.filter((l:any) => l.status === "expired");
   const loadError = [propertyResult.error,unitResult.error,leaseResult.error,chargeResult.error,recordResult.error].some(Boolean);
-  const leaseUnit = new Map(leases.map((lease:any) => [lease.id, lease.unit_id]));
-  const unitProperty = new Map(units.map((unit:any) => [unit.id, unit.property_id]));
-  const rentExpected = leases.reduce((sum:number, lease:any) => sum + Number(lease.monthly_rent || 0), 0);
-  const totalCollected = charges.reduce((sum:number, charge:any) => sum + Number(charge.amount_paid || 0), 0);
-  const totalCharged = charges.reduce((sum:number, charge:any) => sum + Number(charge.amount || 0), 0);
-  const outstanding = Math.max(0, totalCharged - totalCollected);
-  const totalExpenses = records.filter((r:any) => ["expense","maintenance","mortgage"].includes(r.record_type)).reduce((sum:number,r:any)=>sum+Number(r.amount||0),0);
-  const otherIncome = records.filter((r:any) => r.record_type === "other_income").reduce((sum:number,r:any)=>sum+Number(r.amount||0),0);
-  const fmtDate = (value:string|null) => value ? new Date(value+"T00:00:00").toLocaleDateString("en-KE",{day:"numeric",month:"short",year:"numeric"}) : "—";
+  const rentExpected = activeLeases.reduce((sum:number,l:any)=>sum+Number(l.monthly_rent||0),0);
+  const totalCollected = charges.reduce((sum:number,c:any)=>sum+Number(c.amount_paid||0),0);
+  const totalCharged = charges.reduce((sum:number,c:any)=>sum+Number(c.amount||0),0);
+  const outstanding = Math.max(0,totalCharged-totalCollected);
+  const totalExpenses = records.filter((r:any)=>["expense","maintenance","mortgage"].includes(r.record_type)).reduce((s:number,r:any)=>s+Number(r.amount||0),0);
+  const otherIncome = records.filter((r:any)=>r.record_type==="other_income").reduce((s:number,r:any)=>s+Number(r.amount||0),0);
+  const occupied = units.filter((u:any)=>u.status==="occupied").length;
+  const occupancy = units.length ? Math.round(occupied/units.length*100) : 0;
+  const compliance = records.filter((r:any)=>r.record_type==="compliance" && r.due_date);
+  const today = new Date().toISOString().slice(0,10);
+  const expiredCompliance = compliance.filter((r:any)=>r.due_date<today || r.status==="overdue");
+  const upcomingCompliance = compliance.filter((r:any)=>r.due_date>=today && r.status!=="completed" && r.status!=="paid");
+  const maintenance = records.filter((r:any)=>r.record_type==="maintenance");
+  const fmtDate = (v:string|null) => v ? new Date(v+"T00:00:00").toLocaleDateString("en-KE",{day:"numeric",month:"short",year:"numeric"}) : "—";
+  const errorText: Record<string,string> = { validation:"Check the title, dates, status and amount. Amounts must be zero or greater.", access:"Your account does not have permission to add portfolio records in this workspace.", property:"The selected property could not be found in this workspace.", save:"The record could not be saved. Please refresh and try again." };
+  const field = (name:string,label:string,type="text",required=false) => <label style={{display:"block",fontSize:12,fontWeight:700,color:palette.ink}}>{label}<input name={name} type={type} required={required} style={input}/></label>;
+  const metric = (label:string,value:string,accent:string,sub?:string) => <article style={card}><div style={{display:"flex",alignItems:"center",gap:9}}><span style={{width:30,height:30,borderRadius:99,display:"grid",placeItems:"center",background:accent+"18",color:accent,fontWeight:800}}>●</span><b style={{fontSize:15}}>{label}</b></div><div style={{fontSize:27,fontWeight:800,letterSpacing:-.8,marginTop:18}}>{value}</div>{sub&&<small style={{display:"block",color:palette.muted,marginTop:5}}>{sub}</small>}</article>;
 
-  const errorText: Record<string,string> = {
-    validation:"Check the title, dates, status and amount. Amounts must be zero or greater.",
-    access:"Your account does not have permission to add portfolio records in this workspace.",
-    property:"The selected property could not be found in this workspace.",
-    save:"The record could not be saved. Please refresh and try again.",
-  };
-  const field = (name:string,label:string,type="text",required=false) => <label style={{display:"block",fontSize:12,fontWeight:700}}>{label}<input name={name} type={type} required={required} style={input}/></label>;
-
-  return <main style={{minHeight:"100vh",background:"#f3f2ec",color:"#132c2a",padding:"26px 5%"}}>
-    <header style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:16,borderBottom:"1px solid #d8dfd6",paddingBottom:18,flexWrap:"wrap"}}>
-      <a href="/dashboard" style={{fontWeight:800,fontSize:20,color:"#183b32",textDecoration:"none"}}>PropertyOS AI</a>
-      <nav style={{display:"flex",gap:18,flexWrap:"wrap"}}><a href="/dashboard/operations">Property operations</a><a href="/dashboard">Overview</a></nav>
-    </header>
-    <section style={{maxWidth:1240,margin:"34px auto"}}>
-      <p style={{color:"#6d9e8b",fontSize:11,letterSpacing:2}}>PORTFOLIO INTELLIGENCE · {org.name}</p>
-      <h1 style={{fontSize:38,margin:"8px 0"}}>See the whole picture.</h1>
-      <p style={{color:"#687573",lineHeight:1.6}}>A property-by-property view of rental income, costs and important operational records.</p>
-      {loadError && <div role="alert" style={{...card,background:"#fff4e5",color:"#75420d",margin:"16px 0"}}>Some portfolio information could not be loaded. Figures may be incomplete; refresh and check your workspace records.</div>}
-      {params.error && <p role="alert" style={{padding:12,background:"#f9e8e2",color:"#8a3829",borderRadius:8}}>{errorText[params.error] ?? "Something went wrong."}</p>}
-      {params.saved && <p role="status" style={{padding:12,background:"#e5f1e9",color:"#245a3e",borderRadius:8}}>Portfolio detail saved successfully.</p>}
-      {recordResult.error && <p role="alert" style={{padding:12,background:"#fff4e5",color:"#75420d",borderRadius:8}}>Portfolio records are not available yet. Apply the Portfolio Intelligence database migration before using this section.</p>}
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(175px,1fr))",gap:12,margin:"24px 0"}}>
-        {[[ "Properties",properties.length ],[ "Units",units.length ],[ "Occupancy",units.length ? Math.round(units.filter((u:any)=>u.status==="occupied").length/units.length*100)+"%" : "—" ],[ "Monthly rent run-rate",money(rentExpected) ],[ "Rent collected (records)",money(totalCollected) ],[ "Outstanding rent",money(outstanding) ],[ "Recorded costs",money(totalExpenses) ],[ "Other income",money(otherIncome) ]].map(([label,value])=><article key={String(label)} style={card}><small style={{color:"#687573"}}>{label}</small><div style={{fontSize:23,fontWeight:800,marginTop:8}}>{value}</div></article>)}
+  return <main style={{minHeight:"100vh",background:palette.pale,color:palette.ink,display:"flex",fontFamily:"Arial, sans-serif"}}>
+    <aside style={{width:218,background:"#fff",borderRight:`1px solid ${palette.line}`,padding:"22px 14px",flexShrink:0}}>
+      <a href="/dashboard" style={{display:"block",fontSize:21,fontWeight:850,color:palette.green,textDecoration:"none",padding:"4px 10px 26px"}}>PropertyOS<span style={{color:palette.ink}}> AI</span></a>
+      <div style={{fontSize:11,color:palette.muted,padding:"0 10px 12px",fontWeight:700,letterSpacing:1}}>WORKSPACE</div>
+      <div style={{padding:"11px 10px",background:"#f1f7f5",borderRadius:10,fontSize:13,fontWeight:700,marginBottom:18}}>{org.name}</div>
+      <a href="/dashboard/operations" style={{display:"block",textAlign:"center",padding:12,background:palette.green,color:"#fff",borderRadius:30,textDecoration:"none",fontWeight:750,marginBottom:22}}>＋ ADD / MANAGE</a>
+      <nav style={{display:"grid",gap:5}}>{nav.map((item,i)=><a key={item.label} href={item.href} style={{display:"flex",gap:12,alignItems:"center",padding:"11px 10px",borderRadius:9,textDecoration:"none",fontSize:13,fontWeight:i===0?750:550,color:i===0?palette.ink:palette.muted,background:i===0?"#edf5f2":"transparent"}}><span style={{width:20,fontSize:17,textAlign:"center",color:i===0?palette.green:palette.muted}}>{item.icon}</span>{item.label}</a>)}</nav>
+      <div style={{marginTop:28,padding:"14px 10px",borderTop:`1px solid ${palette.line}`,fontSize:11,color:palette.muted,lineHeight:1.6}}>Your landlord workspace at a glance. Figures reflect records saved in PropertyOS AI.</div>
+    </aside>
+    <section style={{minWidth:0,flex:1,padding:"26px clamp(16px,3vw,42px) 50px"}}>
+      <header style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:14,flexWrap:"wrap",marginBottom:25}}>
+        <div><div style={{fontSize:12,color:palette.muted,fontWeight:700}}>LANDLORD WORKSPACE / OVERVIEW</div><h1 style={{fontSize:32,margin:"7px 0 0",letterSpacing:-1}}>Dashboard</h1></div>
+        <div style={{display:"flex",alignItems:"center",gap:10}}><a href="/dashboard/operations" style={{background:"#fff",border:`1px solid ${palette.line}`,padding:"10px 14px",borderRadius:10,textDecoration:"none",color:palette.ink,fontSize:13,fontWeight:700}}>Manage properties ↗</a><span style={{width:38,height:38,borderRadius:50,background:"#e2f2eb",color:palette.green,display:"grid",placeItems:"center",fontWeight:800}}> {String(org.name).slice(0,1).toUpperCase()} </span></div>
+      </header>
+      {loadError&&<div role="alert" style={{...card,background:"#fff5e8",color:"#815018",marginBottom:16}}>Some portfolio information could not be loaded. Figures may be incomplete; refresh and check your workspace records.</div>}
+      {params.error&&<p role="alert" style={{padding:12,background:"#f9e8e2",color:"#8a3829",borderRadius:8}}>{errorText[params.error]??"Something went wrong."}</p>}
+      {params.saved&&<p role="status" style={{padding:12,background:"#e5f1e9",color:"#245a3e",borderRadius:8}}>Portfolio detail saved successfully.</p>}
+      {recordResult.error&&<p role="alert" style={{padding:12,background:"#fff4e5",color:"#75420d",borderRadius:8}}>Portfolio records are not available yet. Apply the Portfolio Intelligence database migration before using this section.</p>}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(205px,1fr))",gap:15,marginBottom:16}}>
+        {metric("Properties",String(properties.length),palette.blue,"In this workspace")}
+        {metric("Income due",money(outstanding),palette.green,"Outstanding rent from recorded charges")}
+        {metric("Monthly rent",money(rentExpected),palette.green,"Active tenancy run-rate")}
+        {metric("Expenses recorded",money(totalExpenses),palette.red,"Expenses, maintenance and mortgage")}
       </div>
-      <h2 style={{fontSize:24,margin:"32px 0 14px"}}>Property performance</h2>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(260px,1fr))",gap:14}}>
-        {properties.map((property:any)=>{
-          const propertyUnits = units.filter((u:any)=>u.property_id===property.id);
-          const propertyLeases = leases.filter((l:any)=>propertyUnits.some((u:any)=>u.id===l.unit_id));
-          const propertyLeaseIds = new Set(propertyLeases.map((l:any)=>l.id));
-          const propertyCharges = charges.filter((c:any)=>propertyLeaseIds.has(c.lease_id));
-          const propertyRecords = records.filter((r:any)=>r.property_id===property.id);
-          const collected = propertyCharges.reduce((s:number,c:any)=>s+Number(c.amount_paid||0),0);
-          const billed = propertyCharges.reduce((s:number,c:any)=>s+Number(c.amount||0),0);
-          const expenses = propertyRecords.filter((r:any)=>["expense","maintenance","mortgage"].includes(r.record_type)).reduce((s:number,r:any)=>s+Number(r.amount||0),0);
-          const income = propertyRecords.filter((r:any)=>r.record_type==="other_income").reduce((s:number,r:any)=>s+Number(r.amount||0),0);
-          const occupied = propertyUnits.filter((u:any)=>u.status==="occupied").length;
-          return <article key={property.id} style={card}>
-            <div style={{display:"flex",justifyContent:"space-between",gap:8}}><h3 style={{margin:"0 0 6px"}}>{property.name}</h3><span style={{fontSize:11,color:"#6d9e8b"}}>{propertyUnits.length} units</span></div>
-            <small style={{color:"#687573"}}>{property.address||property.county||"Address not added"}</small>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginTop:18}}>
-              <div><small>Occupancy</small><b style={{display:"block",marginTop:4}}>{propertyUnits.length?Math.round(occupied/propertyUnits.length*100)+"%":"—"}</b></div>
-              <div><small>Rent collected</small><b style={{display:"block",marginTop:4}}>{money(collected)}</b></div>
-              <div><small>Outstanding</small><b style={{display:"block",marginTop:4}}>{money(Math.max(0,billed-collected))}</b></div>
-              <div><small>Recorded costs</small><b style={{display:"block",marginTop:4}}>{money(expenses)}</b></div>
-              <div><small>Other income</small><b style={{display:"block",marginTop:4}}>{money(income)}</b></div>
-              <div><small>Net recorded</small><b style={{display:"block",marginTop:4}}>{money(collected+income-expenses)}</b></div>
-            </div>
-            <p style={{fontSize:12,color:"#687573",marginBottom:0}}>{propertyRecords.length} additional records · rent values use recorded charges and payments</p>
-          </article>;
-        })}
-        {!properties.length && <article style={card}>No properties yet. Add a property in <a href="/dashboard/operations">Property operations</a> to begin.</article>}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(235px,1fr))",gap:15,marginBottom:16}}>
+        <article style={{...card,minHeight:225}}><h2 style={{fontSize:17,margin:"0 0 18px"}}>Profit &amp; Loss snapshot</h2><div style={{display:"flex",alignItems:"center",gap:18}}><div style={{display:"grid",gap:12,flex:1}}><div><small style={{color:palette.muted}}>Rent collected</small><b style={{display:"block",fontSize:21,color:palette.green,marginTop:3}}>{money(totalCollected)}</b></div><div><small style={{color:palette.muted}}>Other income</small><b style={{display:"block",fontSize:19,marginTop:3}}>{money(otherIncome)}</b></div><div><small style={{color:palette.muted}}>Recorded costs</small><b style={{display:"block",fontSize:19,color:palette.red,marginTop:3}}>{money(totalExpenses)}</b></div></div><div style={{width:74,height:120,display:"flex",alignItems:"end",gap:7}}><span style={{height:"85%",flex:1,background:palette.green,borderRadius:"8px 8px 0 0"}}/><span style={{height:"38%",flex:1,background:palette.red,borderRadius:"8px 8px 0 0"}}/><span style={{height:"58%",flex:1,background:palette.amber,borderRadius:"8px 8px 0 0"}}/></div></div><p style={{fontSize:11,color:palette.muted,marginBottom:0}}>Net recorded: {money(totalCollected+otherIncome-totalExpenses)} · all-time saved records</p></article>
+        <article style={card}><h2 style={{fontSize:17,margin:"0 0 12px"}}>Tenancies</h2><div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:10,minHeight:115}}><div style={{width:112,height:112,borderRadius:"50%",background:"#e6f5ef",display:"grid",placeItems:"center",textAlign:"center"}}><div><b style={{fontSize:30,color:palette.green}}>{activeLeases.length}</b><small style={{display:"block",color:palette.muted}}>active</small></div></div><div style={{width:90,height:90,borderRadius:"50%",background:"#fff0ed",display:"grid",placeItems:"center",textAlign:"center"}}><div><b style={{fontSize:25,color:palette.red}}>{expiredLeases.length}</b><small style={{display:"block",color:palette.muted}}>expired</small></div></div></div><small style={{color:palette.muted}}>Lease counts are based on saved tenancy status.</small></article>
+        <article style={card}><h2 style={{fontSize:17,margin:"0 0 12px"}}>Occupancy</h2><div style={{display:"grid",placeItems:"center",padding:"10px 0"}}><div style={{width:148,height:148,borderRadius:"50%",background:`conic-gradient(${palette.green} ${occupancy*3.6}deg, #edf1ef 0deg)`,display:"grid",placeItems:"center"}}><div style={{width:112,height:112,borderRadius:"50%",background:"#fff",display:"grid",placeItems:"center",textAlign:"center"}}><div><b style={{fontSize:27}}>{units.length?occupancy+"%":"—"}</b><small style={{display:"block",color:palette.muted}}>occupied</small></div></div></div></div><small style={{color:palette.muted}}>{occupied} occupied of {units.length} total units</small></article>
+        <article style={card}><h2 style={{fontSize:17,margin:"0 0 14px"}}>Early warnings</h2><div style={{display:"flex",justifyContent:"space-between",padding:"11px 0",borderBottom:`1px solid ${palette.line}`}}><span>Upcoming compliance</span><b style={{color:palette.amber}}>{upcomingCompliance.length}</b></div><div style={{display:"flex",justifyContent:"space-between",padding:"11px 0"}}><span>Expired / overdue</span><b style={{color:palette.red}}>{expiredCompliance.length}</b></div><small style={{color:palette.muted}}>Based on compliance records and due dates you have entered.</small></article>
       </div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(300px,1fr))",gap:18,marginTop:28,alignItems:"start"}}>
-        <article style={card}>
-          <h2 style={{marginTop:0}}>Add portfolio details</h2>
-          <p style={{fontSize:13,color:"#687573",lineHeight:1.6}}>Choose the property this record belongs to. It will appear in both the property view and the portfolio totals.</p>
-          <form action={addPortfolioRecord}>
-            <input type="hidden" name="organization_id" value={org.id}/>
-            <label style={{display:"block",fontSize:12,fontWeight:700}}>Property<select name="property_id" required style={input}><option value="">Choose property…</option>{properties.map((p:any)=><option key={p.id} value={p.id}>{p.name}</option>)}</select></label>
-            <label style={{display:"block",fontSize:12,fontWeight:700}}>Record type<select name="record_type" required style={input}>{Object.entries(types).map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></label>
-            {field("title","Description", "text", true)}
-            {field("amount","Amount / value (KES)", "number")}
-            {field("record_date","Record date","date",true)}
-            {field("due_date","Due / expiry date","date")}
-            <label style={{display:"block",fontSize:12,fontWeight:700}}>Status<select name="status" style={input}><option value="recorded">Recorded</option><option value="planned">Planned</option><option value="in_progress">In progress</option><option value="completed">Completed</option><option value="paid">Paid</option><option value="overdue">Overdue</option></select></label>
-            <label style={{display:"block",fontSize:12,fontWeight:700}}>Notes<textarea name="notes" maxLength={2000} rows={3} style={{...input,resize:"vertical"}}/></label>
-            <button style={button} disabled={!properties.length}>Save property detail</button>
-          </form>
-        </article>
-        <article style={card}>
-          <h2 style={{marginTop:0}}>Recent property records</h2>
-          {records.length ? records.slice(0,15).map((record:any)=>{
-            const property = properties.find((p:any)=>p.id===record.property_id);
-            return <div key={record.id} style={{padding:"12px 0",borderBottom:"1px solid #edf0eb"}}>
-              <div style={{display:"flex",justifyContent:"space-between",gap:10}}><b>{record.title}</b><small>{record.amount===null?"—":money(Number(record.amount))}</small></div>
-              <small style={{color:"#687573"}}>{property?.name??"Property"} · {types[record.record_type]??record.record_type} · {fmtDate(record.record_date)}</small>
-              {record.due_date&&<div style={{fontSize:12,marginTop:4}}>Due / expiry: {fmtDate(record.due_date)}</div>}
-              {record.notes&&<p style={{fontSize:12,color:"#687573",margin:"5px 0 0"}}>{record.notes}</p>}
-            </div>;
-          }) : <p style={{color:"#687573"}}>No extra details recorded yet. Use the form to add expenses, maintenance, compliance dates, mortgage details, valuations or other income.</p>}
-        </article>
+      <div id="performance" style={{display:"grid",gridTemplateColumns:"minmax(0,1.6fr) minmax(260px,1fr)",gap:15,marginBottom:16}}>
+        <article style={card}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:12,flexWrap:"wrap"}}><h2 style={{fontSize:19,margin:0}}>Property performance</h2><span style={{fontSize:11,color:palette.muted}}>Portfolio overview</span></div><div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(225px,1fr))",gap:12,marginTop:15}}>
+          {properties.map((p:any)=>{const pu=units.filter((u:any)=>u.property_id===p.id);const pls=activeLeases.filter((l:any)=>pu.some((u:any)=>u.id===l.unit_id));const ids=new Set(pls.map((l:any)=>l.id));const pc=charges.filter((c:any)=>ids.has(c.lease_id));const pr=records.filter((r:any)=>r.property_id===p.id);const got=pc.reduce((s:number,c:any)=>s+Number(c.amount_paid||0),0);const due=Math.max(0,pc.reduce((s:number,c:any)=>s+Number(c.amount||0),0)-got);const cost=pr.filter((r:any)=>["expense","maintenance","mortgage"].includes(r.record_type)).reduce((s:number,r:any)=>s+Number(r.amount||0),0);const occ=pu.filter((u:any)=>u.status==="occupied").length;return <div key={p.id} style={{border:`1px solid ${palette.line}`,borderRadius:13,padding:14}}><div style={{display:"flex",justifyContent:"space-between",gap:8}}><b>{p.name}</b><small style={{color:palette.muted}}>{pu.length} units</small></div><small style={{color:palette.muted}}>{p.address||p.county||"Address not added"}</small><div style={{height:7,background:"#edf1ef",borderRadius:10,margin:"14px 0 6px",overflow:"hidden"}}><div style={{height:"100%",width:`${pu.length?occ/pu.length*100:0}%`,background:palette.green}}/></div><small style={{color:palette.muted}}>{pu.length?Math.round(occ/pu.length*100):0}% occupied</small><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginTop:13}}><div><small style={{color:palette.muted}}>Collected</small><b style={{display:"block",fontSize:14}}>{money(got)}</b></div><div><small style={{color:palette.muted}}>Outstanding</small><b style={{display:"block",fontSize:14,color:palette.red}}>{money(due)}</b></div><div><small style={{color:palette.muted}}>Costs</small><b style={{display:"block",fontSize:14}}>{money(cost)}</b></div><div><small style={{color:palette.muted}}>Records</small><b style={{display:"block",fontSize:14}}>{pr.length}</b></div></div></div>})}
+          {!properties.length&&<p style={{color:palette.muted}}>No properties yet. Add one in <a href="/dashboard/operations">Property operations</a> to start seeing your portfolio.</p>}
+        </div></article>
+        <article id="income" style={card}><h2 style={{fontSize:19,margin:"0 0 15px"}}>Income &amp; expenses</h2><div style={{padding:"13px 0",borderBottom:`1px solid ${palette.line}`}}><small style={{color:palette.muted}}>Rent collected</small><b style={{display:"block",fontSize:21,color:palette.green,marginTop:4}}>{money(totalCollected)}</b></div><div style={{padding:"13px 0",borderBottom:`1px solid ${palette.line}`}}><small style={{color:palette.muted}}>Rent outstanding</small><b style={{display:"block",fontSize:21,color:palette.red,marginTop:4}}>{money(outstanding)}</b></div><div style={{padding:"13px 0",borderBottom:`1px solid ${palette.line}`}}><small style={{color:palette.muted}}>Other income</small><b style={{display:"block",fontSize:21,marginTop:4}}>{money(otherIncome)}</b></div><div style={{padding:"13px 0"}}><small style={{color:palette.muted}}>Recorded costs</small><b style={{display:"block",fontSize:21,marginTop:4}}>{money(totalExpenses)}</b></div><small style={{color:palette.muted}}>These totals are based on saved charges and portfolio records, not a reconciled bank statement.</small></article>
       </div>
-      <p style={{fontSize:12,color:"#687573",lineHeight:1.6,marginTop:20}}>Figures are calculated from the records currently available in this workspace. They are management summaries, not audited accounts or tax advice. Add complete records for reliable results.</p>
+      <div id="records" style={{display:"grid",gridTemplateColumns:"minmax(280px,1fr) minmax(280px,1fr)",gap:15,alignItems:"start"}}>
+        <article style={card}><h2 style={{fontSize:19,margin:"0 0 8px"}}>＋ Add property details</h2><p style={{fontSize:13,color:palette.muted,lineHeight:1.6}}>Add the information that helps complete your property overview: expenses, maintenance, compliance, mortgage, valuation or other income.</p><form action={addPortfolioRecord}><input type="hidden" name="organization_id" value={org.id}/><label style={{display:"block",fontSize:12,fontWeight:700}}>Property<select name="property_id" required style={input}><option value="">Choose property…</option>{properties.map((p:any)=><option key={p.id} value={p.id}>{p.name}</option>)}</select></label><label style={{display:"block",fontSize:12,fontWeight:700}}>Record type<select name="record_type" required style={input}>{Object.entries(types).map(([v,l])=><option key={v} value={v}>{l}</option>)}</select></label>{field("title","Description","text",true)}{field("amount","Amount / value (KES)","number")}{field("record_date","Record date","date",true)}{field("due_date","Due / expiry date","date")}<label style={{display:"block",fontSize:12,fontWeight:700}}>Status<select name="status" style={input}><option value="recorded">Recorded</option><option value="planned">Planned</option><option value="in_progress">In progress</option><option value="completed">Completed</option><option value="paid">Paid</option><option value="overdue">Overdue</option></select></label><label style={{display:"block",fontSize:12,fontWeight:700}}>Notes<textarea name="notes" maxLength={2000} rows={3} style={{...input,resize:"vertical"}}/></label><button style={button} disabled={!properties.length}>Save property detail</button></form></article>
+        <article style={card}><h2 style={{fontSize:19,margin:"0 0 8px"}}>Recent property records</h2>{records.length?records.slice(0,15).map((r:any)=>{const p=properties.find((x:any)=>x.id===r.property_id);return <div key={r.id} style={{padding:"12px 0",borderBottom:`1px solid ${palette.line}`}}><div style={{display:"flex",justifyContent:"space-between",gap:10}}><b>{r.title}</b><b>{r.amount===null?"—":money(Number(r.amount))}</b></div><small style={{color:palette.muted}}>{p?.name??"Property"} · {types[r.record_type]??r.record_type} · {fmtDate(r.record_date)}</small>{r.due_date&&<div style={{fontSize:12,marginTop:4}}>Due / expiry: {fmtDate(r.due_date)}</div>}{r.notes&&<p style={{fontSize:12,color:palette.muted,margin:"5px 0 0"}}>{r.notes}</p>}</div>}) : <p style={{color:palette.muted}}>No extra details recorded yet. Add your first property record using the form.</p>}{maintenance.length>0&&<p style={{fontSize:12,color:palette.muted}}>Maintenance records: {maintenance.length}</p>}</article>
+      </div>
+      <p style={{fontSize:11,color:palette.muted,lineHeight:1.6,marginTop:18}}>Figures are calculated from the records currently available in this workspace. They are management summaries, not audited accounts or tax advice. Occupancy uses unit status; tenancy counts use saved lease status. Loan-to-value and bank balances are not displayed until verified loan, valuation and account data are available.</p>
     </section>
   </main>;
 }
