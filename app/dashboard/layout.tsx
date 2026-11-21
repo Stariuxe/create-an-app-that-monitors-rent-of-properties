@@ -1,7 +1,7 @@
 import "./dashboard-shell.css";
 
 const links = [
-  { label: "Workspace overview", href: "/dashboard/operations#workspace-summary", icon: "◫" },
+  { label: "Workspace overview", href: "/dashboard/overview", icon: "◫" },
   { label: "Properties", href: "/dashboard/operations#add-property", icon: "⌂" },
   { label: "Units", href: "/dashboard/operations#add-unit", icon: "▦" },
   { label: "Tenants", href: "/dashboard/operations#add-tenant", icon: "♙" },
@@ -27,7 +27,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="workspace-insight-icon">✦</div>
           <strong>Portfolio insights</strong>
           <p>Track rent collection, occupancy and property activity from your workspace overview.</p>
-          <a href="/dashboard/operations#workspace-charts">View insights →</a>
+          <a href="/dashboard/overview#workspace-charts">View insights →</a>
         </div>
         <a className="workspace-sidebar-home" href="/">← Back to PropertyOS AI</a>
       </aside>
