@@ -68,7 +68,7 @@ export default async function PortfolioPage({ searchParams }: { searchParams: Pr
       {params.error&&<p role="alert" style={{padding:12,background:"#f9e8e2",color:"#8a3829",borderRadius:8}}>{errorText[params.error]??"Something went wrong."}</p>}
       {params.saved&&<p role="status" style={{padding:12,background:"#e5f1e9",color:"#245a3e",borderRadius:8}}>Portfolio detail saved successfully.</p>}
       {recordResult.error&&<p role="alert" style={{padding:12,background:"#fff4e5",color:"#75420d",borderRadius:8}}>Portfolio records are not available yet. Apply the Portfolio Intelligence database migration before using this section.</p>}
-      <div style={{display:"grid",gridTemplateColumns:"repeat(4,minmax(0,1fr))",gap:15,marginBottom:16,className:"portfolio-four"}}>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,minmax(0,1fr))",gap:15,marginBottom:16}} className="portfolio-four">
         {metric("Properties",String(properties.length),palette.blue,"In this workspace")}
         {metric("Income due",money(outstanding),palette.green,"Outstanding rent from recorded charges")}
         {metric("Monthly rent",money(rentExpected),palette.green,"Active tenancy run-rate")}
