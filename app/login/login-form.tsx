@@ -14,6 +14,11 @@ export default function LoginForm({ initialMode = "signin" }: LoginFormProps) {
   const [messageType, setMessageType] = useState<"success" | "error" | "info">("info");
   const [busy, setBusy] = useState(false);
 
+  function feedback(type: "success" | "error" | "info", text: string) {
+    setMessageType(type);
+    setMessage(text);
+  }
+
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (busy) return;
@@ -21,49 +26,60 @@ export default function LoginForm({ initialMode = "signin" }: LoginFormProps) {
     setMessage("");
     try {
       const supabase = createClient();
+      const callback = new URL("/auth/callback", window.location.origin);
+      callback.searchParams.set("next", "/dashboard");
+
       if (mode === "signup") {
         const { data, error } = await supabase.auth.signUp({
           email: email.trim(),
           password,
-          options: { data: { full_name: fullName.trim() } },
+          options: {
+            data: { full_name: fullName.trim() },
+            emailRedirectTo: callback.toString(),
+          },
         });
         if (error) throw error;
-
         if (data.session) {
-          setMessageType("success");
-          setMessage("Your account is ready. Opening your landlord workspace…");
+          feedback("success", "Your account is ready. Opening your landlord workspace…");
           window.location.replace("/dashboard");
           return;
         }
-
-        // Supabase returns no session when email confirmation is enabled.
-        // Do not pretend the user is signed in or leave the page blank.
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email: email.trim(),
-          password,
-        });
-        if (!signInError) {
-          setMessageType("success");
-          setMessage("Your account is ready. Opening your landlord workspace…");
-          window.location.replace("/dashboard");
-          return;
-        }
-        setMessageType("info");
-        setMessage("Your account was created, but this project still requires email confirmation. To enable immediate sign-in, the project administrator must turn off Confirm email in Supabase Authentication settings. You can sign in here after that setting is changed.");
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email: email.trim(),
-          password,
-        });
-        if (error) throw error;
-        setMessageType("success");
-        setMessage("Signed in. Opening your landlord workspace…");
-        window.location.replace("/dashboard");
+        feedback("info", "Your account has been created. Check your email and confirm your address to securely activate your workspace, then sign in here. If you do not see the email, check your spam folder.");
         return;
       }
+
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
+      if (error) throw error;
+      feedback("success", "Signed in. Opening your landlord workspace…");
+      window.location.replace("/dashboard");
     } catch (error) {
-      setMessageType("error");
-      setMessage(error instanceof Error ? error.message : "We could not complete that request. Please try again.");
+      feedback("error", error instanceof Error ? error.message : "We could not complete that request. Please try again.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function sendMagicLink() {
+    if (busy || !email.trim()) {
+      feedback("error", "Enter your email address first.");
+      return;
+    }
+    setBusy(true);
+    setMessage("");
+    try {
+      const callback = new URL("/auth/callback", window.location.origin);
+      callback.searchParams.set("next", "/dashboard");
+      const { error } = await createClient().auth.signInWithOtp({
+        email: email.trim(),
+        options: { emailRedirectTo: callback.toString(), shouldCreateUser: false },
+      });
+      if (error) throw error;
+      feedback("success", "If an account exists for that email, a secure sign-in link has been sent. Check your inbox.");
+    } catch (error) {
+      feedback("error", error instanceof Error ? error.message : "We could not send a sign-in link. Please try again.");
     } finally {
       setBusy(false);
     }
@@ -83,6 +99,10 @@ export default function LoginForm({ initialMode = "signin" }: LoginFormProps) {
       <label htmlFor="password" style={{ fontSize: 12, color: "#53665c" }}>Password</label>
       <input id="password" type="password" autoComplete={mode === "signin" ? "current-password" : "new-password"} minLength={8} required value={password} onChange={e => setPassword(e.target.value)} style={field} />
       <button disabled={busy} type="submit" style={{ width: "100%", padding: 14, border: 0, borderRadius: 6, background: "#183b32", color: "#fff", fontWeight: 700, cursor: busy ? "wait" : "pointer", opacity: busy ? 0.7 : 1 }}>{busy ? "Please wait…" : mode === "signin" ? "Sign in securely →" : "Create landlord account →"}</button>
+      {mode === "signin" && <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap", marginTop: 14, fontSize: 12 }}>
+        <a href="/forgot-password" style={{ color: "#183b32", fontWeight: 700 }}>Forgot password?</a>
+        <button type="button" onClick={sendMagicLink} disabled={busy} style={{ border: 0, padding: 0, background: "transparent", color: "#183b32", fontWeight: 700, cursor: "pointer" }}>Email me a sign-in link</button>
+      </div>}
       {message && <p role={messageType === "error" ? "alert" : "status"} aria-live="polite" style={{ marginTop: 16, padding: 12, borderRadius: 6, fontSize: 13, lineHeight: 1.6, color: messageType === "error" ? "#8a3829" : "#315c49", background: messageType === "error" ? "#f9e8e2" : "#e7eee7" }}>{message}</p>}
       <p style={{ marginTop: 20, fontSize: 11, lineHeight: 1.6, color: "#7a8780" }}>Your account is protected by secure sign-in. Use a strong, unique password.</p>
     </form>
