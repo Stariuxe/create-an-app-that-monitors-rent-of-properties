@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const rawType = url.searchParams.get("type");
   const type = rawType && allowedTypes.includes(rawType as EmailOtpType) ? rawType as EmailOtpType : null;
-  const fallback = type === "recovery" ? "/update-password" : "/dashboard";
+  const fallback = type === "recovery" ? "/update-password" : "/auth/complete";
   const destination = safeNext(url.searchParams.get("next"), url.origin, fallback);
   destination.searchParams.delete("code");
   destination.searchParams.delete("token_hash");
