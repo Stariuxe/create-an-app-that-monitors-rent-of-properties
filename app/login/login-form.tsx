@@ -28,7 +28,7 @@ export default function LoginForm({ initialMode = "signin" }: LoginFormProps) {
     try {
       const supabase = createClient();
       const callback = new URL("/auth/callback", window.location.origin);
-      callback.searchParams.set("next", "/dashboard");
+      callback.searchParams.set("next", "/auth/complete");
 
       if (mode === "signup") {
         const { data, error } = await supabase.auth.signUp({
@@ -42,7 +42,7 @@ export default function LoginForm({ initialMode = "signin" }: LoginFormProps) {
         if (error) throw error;
         if (data.session) {
           feedback("success", "Your account is ready. Opening your landlord workspace…");
-          window.location.replace("/dashboard");
+          window.location.replace("/auth/complete");
           return;
         }
         feedback("info", "Your account has been created. Check your email and confirm your address to securely activate your workspace, then sign in here. If you do not see the email, check your spam folder.");
@@ -55,7 +55,7 @@ export default function LoginForm({ initialMode = "signin" }: LoginFormProps) {
       });
       if (error) throw error;
       feedback("success", "Signed in. Opening your landlord workspace…");
-      window.location.replace("/dashboard");
+      window.location.replace("/auth/complete");
     } catch (error) {
       feedback("error", error instanceof Error ? error.message : "We could not complete that request. Please try again.");
     } finally {
@@ -72,7 +72,7 @@ export default function LoginForm({ initialMode = "signin" }: LoginFormProps) {
     setMessage("");
     try {
       const callback = new URL("/auth/callback", window.location.origin);
-      callback.searchParams.set("next", "/dashboard");
+      callback.searchParams.set("next", "/auth/complete");
       const { error } = await createClient().auth.signInWithOtp({
         email: email.trim(),
         options: { emailRedirectTo: callback.toString(), shouldCreateUser: false },
