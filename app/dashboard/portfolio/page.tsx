@@ -84,7 +84,7 @@ export default async function PortfolioPage({ searchParams }: { searchParams: Pr
       <section style={{ ...card, marginTop: 24 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
           <div><h2 style={{ margin: 0 }}>Property performance</h2><p style={{ margin: "6px 0 0", color: "#687573", fontSize: 13 }}>Select a property to see its own results and records.</p></div>
-          <form method="get"><select name="property" aria-label="Select property" defaultValue={selected?.id ?? ""} style={{ ...field, minWidth: 240, margin: 0 }} onChange={undefined as any}>{propertyList.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}</select><button style={{ ...button, marginLeft: 8 }}>View property</button></form>
+          <form method="get"><select name="property" aria-label="Select property" defaultValue={selected?.id ?? ""} style={{ ...field, minWidth: 240, margin: 0 }}>{propertyList.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}</select><button style={{ ...button, marginLeft: 8 }}>View property</button></form>
         </div>
         {!selected ? <p style={{ marginTop: 20 }}>No properties have been added yet. Add your first property in <a href="/dashboard/operations">Property operations</a>.</p> : <>
           <h3 style={{ margin: "22px 0 4px" }}>{selected.name}</h3><p style={{ color: "#687573", marginTop: 0 }}>{selected.address || selected.county || "Address not added"}</p>
