@@ -40,7 +40,6 @@ export default async function PortfolioPage({ searchParams }: { searchParams: Pr
   const propertyCharges = chargeList.filter((c: any) => leaseIds.has(c.lease_id));
   const totalUnits = unitList.length, occupied = unitList.filter((u: any) => u.status === "occupied").length;
   const rentExpected = leaseList.reduce((sum: number, l: any) => sum + Number(l.monthly_rent || 0), 0);
-  const rentCharged = chargeList.reduce((sum: number, c: any) => sum + Number(c.amount || 0), 0);
   const rentCollected = chargeList.reduce((sum: number, c: any) => sum + Number(c.amount_paid || 0), 0);
   const arrears = chargeList.reduce((sum: number, c: any) => sum + Math.max(0, Number(c.amount || 0) - Number(c.amount_paid || 0)), 0);
   const sumType = (rows: any[], type: string) => rows.filter((r) => r.record_type === type).reduce((s, r) => s + Number(r.amount || 0), 0);
