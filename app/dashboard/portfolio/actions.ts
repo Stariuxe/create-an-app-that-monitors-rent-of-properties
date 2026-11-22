@@ -33,7 +33,7 @@ export async function addPortfolioRecord(formData: FormData) {
   if (!propertyId || !(allowedTypes as readonly string[]).includes(type) ||
       title.length < 2 || title.length > 140 ||
       (amountRaw && (!Number.isFinite(Number(amountRaw)) || Number(amountRaw) < 0)) ||
-      !/^\\d{4}-\\d{2}-\\d{2}$/.test(date) ||
+      !/^\d{4}-\d{2}-\d{2}$/.test(date) ||
       !(allowedStatuses as readonly string[]).includes(status) || notes.length > 2000) {
     redirect("/dashboard/portfolio?error=validation");
   }
