@@ -56,9 +56,9 @@ export default async function PortfolioPage({ searchParams }: { searchParams: Pr
   const metric = (label: string, value: string, note: string) => <article style={card}><small style={{ color: "#6b7c73" }}>{label}</small><div style={{ fontSize: 24, fontWeight: 800, margin: "8px 0" }}>{value}</div><small style={{ color: "#7c8982" }}>{note}</small></article>;
 
   return <main style={{ minHeight: "100vh", background: "#f3f2ec", color: "#132c2a", padding: "24px 5%" }}>
-    <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, flexWrap: "wrap", borderBottom: "1px solid #d8dfd6", paddingBottom: 16 }}>
-      <a href="/dashboard" style={{ fontWeight: 800, fontSize: 20, color: "#183b32", textDecoration: "none" }}>PropertyOS AI</a>
-      <nav style={{ display: "flex", gap: 16, flexWrap: "wrap", fontSize: 14 }}><a href="/dashboard">Overview</a><a href="/dashboard/operations">Property operations</a><a href="/dashboard/portfolio" aria-current="page">Portfolio Intelligence</a></nav>
+    <header style={{ position: "sticky", top: 0, zIndex: 20, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, flexWrap: "wrap", background: "#f3f2ec", borderBottom: "1px solid #d8dfd6", padding: "14px 0" }}>
+      <a href="/dashboard/operations" aria-label="Back to PropertyOS AI workspace" style={{ display: "inline-flex", alignItems: "center", gap: 9, fontWeight: 800, fontSize: 18, color: "#183b32", textDecoration: "none" }}><span aria-hidden="true" style={{ fontSize: 22 }}>←</span> Back to Workspace</a>
+      <nav aria-label="Workspace navigation" style={{ display: "flex", gap: 16, flexWrap: "wrap", fontSize: 14, alignItems: "center" }}><a href="/dashboard/operations" style={{ color: "#183b32", fontWeight: 700 }}>Property operations</a><a href="/dashboard/portfolio" aria-current="page" style={{ color: "#183b32", fontWeight: 700 }}>Portfolio Intelligence</a><a href="/dashboard" style={{ color: "#52665c" }}>Account overview</a></nav>
     </header>
     <section style={{ maxWidth: 1240, margin: "30px auto" }}>
       <p style={{ color: "#6d9e8b", fontSize: 11, letterSpacing: 2 }}>PORTFOLIO INTELLIGENCE · {org.name}</p>
