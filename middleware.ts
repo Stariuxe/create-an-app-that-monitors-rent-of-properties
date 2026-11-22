@@ -30,7 +30,7 @@ export async function middleware(request: NextRequest) {
     redirectUrl.searchParams.set("next", request.nextUrl.pathname);
     return NextResponse.redirect(redirectUrl);
   }
-  if (isLogin && data?.claims) return NextResponse.redirect(new URL("/dashboard", request.url));
+  if (isLogin && data?.claims) return NextResponse.redirect(new URL("/auth/complete", request.url));
   return response;
 }
 
