@@ -44,7 +44,7 @@ export async function recordRentPayment(f:FormData) {
  const received=String(f.get("received_from")??"").trim();
  const notes=String(f.get("notes")??"").trim();
  const paidAt=String(f.get("paid_at")??"");
- if(!members.some(m=>m.organization_id===org)||!charge||!["bank","cash","card","check","other"].includes(method)||!Number.isFinite(amount)||amount<=0||(paidAt&&!/^\\d{4}-\\d{2}-\\d{2}$/.test(paidAt))) redirect("/dashboard/operations?error=payment_validation");
+ if(!members.some(m=>m.organization_id===org)||!charge||!["bank","cash","card","check","other"].includes(method)||!Number.isFinite(amount)||amount<=0||(paidAt&&!/^\d{4}-\d{2}-\d{2}$/.test(paidAt))) redirect("/dashboard/operations?error=payment_validation");
  const paidIso=paidAt?new Date(paidAt+"T12:00:00+03:00").toISOString():new Date().toISOString();
  const {error}=await supabase.rpc("record_manual_rent_payment",{p_organization_id:org,p_rent_charge_id:charge,p_amount:amount,p_method:method,p_reference:reference||null,p_received_from:received||null,p_notes:notes||null,p_paid_at:paidIso});
  if(error) {
