@@ -39,8 +39,10 @@ export default function LoginForm({ initialMode = "signin" }: LoginFormProps) {
         });
         if (error) throw error;
         if (data.session) {
-          feedback("success", "Your account is ready. Continue to identity and security checks…");
-          window.location.replace("/account/verification");
+          feedback("success", "Your account is ready. Opening the correct secure onboarding step…");
+          // Always pass through the server callback: it creates landlord workspaces
+          // and routes tenants/property managers to verification without granting access.
+          window.location.replace("/auth/complete");
           return;
         }
         feedback("info", "Your account request has been created. Check your email and confirm your address before signing in. If the message is missing, check your spam folder.");
