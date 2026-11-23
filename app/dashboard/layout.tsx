@@ -10,6 +10,7 @@ const sections = [
   { label: "Payments", href: "/dashboard/operations#recent-payments", icon: "◎" },
   { label: "M-Pesa", href: "/dashboard/operations#mpesa", icon: "◉" },
   { label: "Portfolio intelligence", href: "/dashboard/portfolio", icon: "⌁" },
+  { label: "Settings", href: "/dashboard/settings", icon: "⚙" },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -17,7 +18,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <div className="property-workspace-frame">
       <aside className="property-workspace-sidebar">
         <Link href="/dashboard/operations" className="workspace-brand">
-          <span className="workspace-brand-mark">P</span>
+          <span className="workspace-brand-mark workspace-house-mark" aria-hidden="true"><svg viewBox="0 0 48 48" role="img"><path d="M5 22.5 24 7l19 15.5" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round"/><path d="M11 20.5V41h26V20.5L24 10z" fill="currentColor" fillOpacity=".13" stroke="currentColor" strokeWidth="2.4" strokeLinejoin="round"/><path d="M20 41V28h8v13M16 25h4M29 25h4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/></svg></span>
           <span>PropertyOS <b>AI</b><small>BY STARIUXE ENTERPRISES</small></span>
         </Link>
         <div className="workspace-side-label">WORKSPACE</div>
