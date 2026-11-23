@@ -83,6 +83,8 @@ export async function updateMaintenancePayment(formData: FormData) {
     actual_cost: finalCost, amount_paid: amountPaid, payment_status: paymentStatus,
     paid_at: paymentStatus === "paid" ? new Date().toISOString() : null,
     payment_reference: reference || null,
+    status: maintenanceStatus,
+    resolved_at: maintenanceStatus === "completed" ? new Date().toISOString() : null,
   }).eq("id", requestId).eq("organization_id", organizationId);
   if (error) {
     console.error("Maintenance payment update failed:", error.code);
