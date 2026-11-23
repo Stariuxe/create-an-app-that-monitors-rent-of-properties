@@ -42,8 +42,19 @@ export async function addUnit(f: FormData) {
   if (!Number.isInteger(monthly_rent) || monthly_rent < 1) redirect("/dashboard/operations?error=unit");
   const { data: property } = await supabase.from("properties").select("id").eq("id", property_id).eq("organization_id", organization_id).maybeSingle();
   if (!property) redirect("/dashboard/operations?error=unit");
+  const { data: existingUnit } = await supabase
+    .from("units")
+    .select("id")
+    .eq("organization_id", organization_id)
+    .eq("property_id", property_id)
+    .eq("unit_number", unit_number)
+    .maybeSingle();
+  if (existingUnit) redirect("/dashboard/operations?error=unit_duplicate");
   const {error}=await supabase.from("units").insert({organization_id,property_id,unit_number,monthly_rent,currency:"KES",status:"vacant"});
-  if (error) { console.error("PropertyOS addUnit failed:", error.code); redirect("/dashboard/operations?error=unit"); }
+  if (error) {
+    console.error("PropertyOS addUnit failed:", error.code);
+    redirect(error.code === "23505" ? "/dashboard/operations?error=unit_duplicate" : "/dashboard/operations?error=unit");
+  }
   revalidatePath("/dashboard/operations");
   redirect("/dashboard/operations?success=unit");
 }
