@@ -1,0 +1,1 @@
+create index if not exists property_wellbeing_reports_property_org_fk_idx on public.property_wellbeing_reports(property_id, organization_id);
