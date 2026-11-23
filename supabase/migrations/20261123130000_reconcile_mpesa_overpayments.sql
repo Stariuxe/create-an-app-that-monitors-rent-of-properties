@@ -115,6 +115,11 @@ begin
     return 'confirmed_with_credit';
   end if;
   return 'confirmed';
+exception
+  when unique_violation then
+    -- The same Daraja receipt was already applied to another payment.
+    -- Roll back this callback's updates and leave it for manual reconciliation.
+    return 'receipt_conflict';
 end;
 $function$;
 
