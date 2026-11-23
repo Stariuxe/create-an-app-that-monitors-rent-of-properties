@@ -26,6 +26,11 @@ create unique index if not exists payments_mpesa_receipt_unique_idx
 alter table public.tenant_payment_credits enable row level security;
 revoke all on table public.tenant_payment_credits from public, anon, authenticated;
 grant all on table public.tenant_payment_credits to service_role;
+grant select on table public.tenant_payment_credits to authenticated;
+create policy "Staff view tenant payment credits"
+  on public.tenant_payment_credits
+  for select to authenticated
+  using (private.is_org_staff(organization_id));
 
 create or replace function public.confirm_mpesa_sandbox_payment(
   p_checkout_id text,
