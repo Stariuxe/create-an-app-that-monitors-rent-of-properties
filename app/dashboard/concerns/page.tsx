@@ -12,7 +12,8 @@ export default async function ConcernsPage({searchParams}:{searchParams:Promise<
  let tenant:any=null; let tenantProperty:string|null=null; let tenantUnit:string|null=null;
  if(!org) {
   const {data:t}=await supabase.from("tenants").select("id,organization_id,full_name").eq("auth_user_id",uid).maybeSingle(); tenant=t;
-  if(tenant){const {data:lease}=await supabase.from("leases").select("unit_id,units(property_id)").eq("tenant_id",tenant.id).eq("organization_id",tenant.organization_id).eq("status","active").maybeSingle();const unit=lease?(Array.isArray(lease.units)?lease.units[0]:lease.units):null;tenantUnit=lease?.unit_id??null;tenantProperty=unit?.property_id??null;
+  if(tenant){const {data:lease}=await supabase.from("leases").select("unit_id").eq("tenant_id",tenant.id).eq("organization_id",tenant.organization_id).eq("status","active").maybeSingle();tenantUnit=lease?.unit_id??null;
+   if(tenantUnit){const {data:unit}=await supabase.from("units").select("property_id").eq("id",tenantUnit).eq("organization_id",tenant.organization_id).maybeSingle();tenantProperty=unit?.property_id??null;}
    const {data:o}=await supabase.from("organizations").select("id,name").eq("id",tenant.organization_id).maybeSingle();org=o;
   }
  }
