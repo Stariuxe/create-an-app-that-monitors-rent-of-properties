@@ -9,6 +9,7 @@ const sections = [
   { label: "Rent & charges", href: "/dashboard/operations#raise-rent-charge", icon: "↗" },
   { label: "Payments", href: "/dashboard/operations#recent-payments", icon: "◎" },
   { label: "M-Pesa", href: "/dashboard/operations#mpesa", icon: "◉" },
+  { label: "Payment reconciliation", href: "/dashboard/payments/reconciliation", icon: "≋" },
   { label: "Portfolio intelligence", href: "/dashboard/portfolio", icon: "⌁" },
   { label: "Wellbeing & repairs", href: "/dashboard/wellbeing", icon: "⌂" },
   { label: "Payment instructions", href: "/dashboard/settings/payments", icon: "¤" },
