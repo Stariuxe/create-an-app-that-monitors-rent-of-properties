@@ -11,6 +11,16 @@ const sections = [
   { label: "M-Pesa", href: "/dashboard/operations#mpesa", icon: "◉" },
   { label: "Portfolio intelligence", href: "/dashboard/portfolio", icon: "⌁" },
   { label: "Wellbeing & repairs", href: "/dashboard/wellbeing", icon: "⌂" },
+  { label: "Payment instructions", href: "/dashboard/settings/payments", icon: "¤" },
+  { label: "Raise concerns", href: "/dashboard/concerns", icon: "!" },
+  { label: "Properties log", href: "/dashboard/logs/properties", icon: "◷" },
+  { label: "Units log", href: "/dashboard/logs/units", icon: "◷" },
+  { label: "Tenants log", href: "/dashboard/logs/tenants", icon: "◷" },
+  { label: "Leases log", href: "/dashboard/logs/leases", icon: "◷" },
+  { label: "Rent log", href: "/dashboard/logs/rent", icon: "◷" },
+  { label: "Payments log", href: "/dashboard/logs/payments", icon: "◷" },
+  { label: "Maintenance log", href: "/dashboard/logs/maintenance", icon: "◷" },
+  { label: "Concerns log", href: "/dashboard/logs/concerns", icon: "◷" },
   { label: "Settings", href: "/dashboard/settings", icon: "⚙" },
 ];
 
