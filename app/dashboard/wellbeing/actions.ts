@@ -65,9 +65,11 @@ export async function updateMaintenancePayment(formData: FormData) {
   const actualRaw = String(formData.get("actual_cost") ?? "").trim();
   const actualCost = actualRaw ? Number(actualRaw) : null;
   const reference = String(formData.get("payment_reference") ?? "").trim().slice(0, 100);
+  const maintenanceStatus = String(formData.get("maintenance_status") ?? "open");
   if (!memberships.some((m) => m.organization_id === organizationId) ||
       !requestId || !Number.isFinite(amountPaid) || amountPaid < 0 ||
-      (actualCost !== null && (!Number.isFinite(actualCost) || actualCost < 0))) {
+      (actualCost !== null && (!Number.isFinite(actualCost) || actualCost < 0)) ||
+      !["open", "in_progress", "on_hold", "completed", "cancelled"].includes(maintenanceStatus)) {
     redirect("/dashboard/wellbeing?error=payment_validation");
   }
   const { data: request } = await supabase.from("maintenance_requests")
