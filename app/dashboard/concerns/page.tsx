@@ -14,7 +14,7 @@ export default async function ConcernsPage({searchParams}:{searchParams:Promise<
   const {data:t}=await supabase.from("tenants").select("id,organization_id,full_name").eq("auth_user_id",uid).maybeSingle(); tenant=t;
   if(tenant){const {data:lease}=await supabase.from("leases").select("unit_id").eq("tenant_id",tenant.id).eq("organization_id",tenant.organization_id).eq("status","active").maybeSingle();tenantUnit=lease?.unit_id??null;
    if(tenantUnit){const {data:unit}=await supabase.from("units").select("property_id").eq("id",tenantUnit).eq("organization_id",tenant.organization_id).maybeSingle();tenantProperty=unit?.property_id??null;}
-   const {data:o}=await supabase.from("organizations").select("id,name").eq("id",tenant.organization_id).maybeSingle();org=o;
+   org={id:tenant.organization_id,name:"Your property workspace"};
   }
  }
  if(!org) return <main style={{padding:30}}>No landlord or tenant workspace was found. <a href="/dashboard/operations">Return to workspace</a></main>;
