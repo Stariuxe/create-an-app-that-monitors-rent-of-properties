@@ -30,11 +30,9 @@ export async function GET(request: NextRequest) {
   }
 
   const accountType = claims?.user_metadata?.account_type;
-  if (accountType === "tenant") {
-    return NextResponse.redirect(new URL("/account/verification?role=tenant", request.url));
-  }
-  if (accountType === "property_manager") {
-    return NextResponse.redirect(new URL("/account/verification?role=property_manager", request.url));
+  if (accountType === "tenant" || accountType === "property_manager") {
+    // No identity-document request: tenants and managers wait for an authorised property invitation.
+    return NextResponse.redirect(new URL("/dashboard?notice=awaiting_invitation", request.url));
   }
 
   const { data: profile } = await supabase.from("profiles").select("full_name").eq("id", userId).maybeSingle();
