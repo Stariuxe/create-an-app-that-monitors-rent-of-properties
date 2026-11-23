@@ -20,14 +20,14 @@ export async function savePaymentInstruction(f:FormData) {
  const method=String(f.get("method")??"");
  const label=String(f.get("label")??"").trim();
  const fields=["beneficiary_name","bank_name","branch_name","account_name","account_number","paybill_number","till_number","phone_number","account_reference","instructions"] as const;
- const payload:Record<string,unknown>={organization_id:org,method,label,created_by:userId,is_active:f.get("is_active")==="on"};
+ const payload:Record<string,unknown>={organization_id:org,method,label,is_active:f.get("is_active")==="on",updated_at:new Date().toISOString()};
  for(const key of fields) payload[key]=String(f.get(key)??"").trim()||null;
  if(!["mpesa","bank","cash","card","check","other"].includes(method)||label.length<2||label.length>100) redirect("/dashboard/settings/payments?error=validation");
  if(id) {
   const {error}=await supabase.from("property_payment_instructions").update(payload).eq("id",id).eq("organization_id",org);
   if(error) redirect("/dashboard/settings/payments?error=save");
  } else {
-  const {error}=await supabase.from("property_payment_instructions").insert(payload);
+  const {error}=await supabase.from("property_payment_instructions").insert({...payload,created_by:userId});
   if(error) redirect("/dashboard/settings/payments?error=save");
  }
  revalidatePath("/dashboard/settings/payments");
@@ -44,7 +44,7 @@ export async function recordRentPayment(f:FormData) {
  const received=String(f.get("received_from")??"").trim();
  const notes=String(f.get("notes")??"").trim();
  const paidAt=String(f.get("paid_at")??"");
- if(!members.some(m=>m.organization_id===org)||!charge||!["bank","cash","card","check","other"].includes(method)||!Number.isFinite(amount)||amount<=0) redirect("/dashboard/operations?error=payment_validation");
+ if(!members.some(m=>m.organization_id===org)||!charge||!["bank","cash","card","check","other"].includes(method)||!Number.isFinite(amount)||amount<=0||(paidAt&&!/^\\d{4}-\\d{2}-\\d{2}$/.test(paidAt))) redirect("/dashboard/operations?error=payment_validation");
  const paidIso=paidAt?new Date(paidAt+"T12:00:00+03:00").toISOString():new Date().toISOString();
  const {error}=await supabase.rpc("record_manual_rent_payment",{p_organization_id:org,p_rent_charge_id:charge,p_amount:amount,p_method:method,p_reference:reference||null,p_received_from:received||null,p_notes:notes||null,p_paid_at:paidIso});
  if(error) {
