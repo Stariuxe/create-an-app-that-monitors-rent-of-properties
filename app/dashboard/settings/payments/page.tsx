@@ -50,6 +50,22 @@ export default async function PaymentInstructionsPage({searchParams}:{searchPara
  {item.phone_number&&<p style={{fontSize:12,margin:"4px 0"}}>Phone: {item.phone_number}</p>}
  {item.account_reference&&<p style={{fontSize:12,margin:"4px 0"}}>Reference: {item.account_reference}</p>}
  {item.instructions&&<p style={{fontSize:12,color:"#53665c",whiteSpace:"pre-wrap"}}>{item.instructions}</p>}
+ <details style={{marginTop:10}}><summary style={{cursor:"pointer",fontSize:12,fontWeight:700}}>Edit this destination</summary><form action={savePaymentInstruction} style={{marginTop:12}}>
+ <input type="hidden" name="organization_id" value={org.id}/><input type="hidden" name="id" value={item.id}/>
+ <label style={{display:"block",fontSize:12,fontWeight:650}}>Method<select name="method" defaultValue={item.method} style={field}>{methods.map(m=><option value={m} key={m}>{moneyLabels[m]}</option>)}</select></label>
+ <label style={{display:"block",fontSize:12,fontWeight:650}}>Display name<input name="label" defaultValue={item.label} required style={field}/></label>
+ <label style={{display:"block",fontSize:12,fontWeight:650}}>Beneficiary<input name="beneficiary_name" defaultValue={item.beneficiary_name??""} style={field}/></label>
+ <label style={{display:"block",fontSize:12,fontWeight:650}}>Bank<input name="bank_name" defaultValue={item.bank_name??""} style={field}/></label>
+ <label style={{display:"block",fontSize:12,fontWeight:650}}>Branch<input name="branch_name" defaultValue={item.branch_name??""} style={field}/></label>
+ <label style={{display:"block",fontSize:12,fontWeight:650}}>Account name<input name="account_name" defaultValue={item.account_name??""} style={field}/></label>
+ <label style={{display:"block",fontSize:12,fontWeight:650}}>Account number<input name="account_number" defaultValue={item.account_number??""} style={field}/></label>
+ <label style={{display:"block",fontSize:12,fontWeight:650}}>Paybill<input name="paybill_number" defaultValue={item.paybill_number??""} style={field}/></label>
+ <label style={{display:"block",fontSize:12,fontWeight:650}}>Till<input name="till_number" defaultValue={item.till_number??""} style={field}/></label>
+ <label style={{display:"block",fontSize:12,fontWeight:650}}>Phone<input name="phone_number" defaultValue={item.phone_number??""} style={field}/></label>
+ <label style={{display:"block",fontSize:12,fontWeight:650}}>Reference<input name="account_reference" defaultValue={item.account_reference??""} style={field}/></label>
+ <label style={{display:"block",fontSize:12,fontWeight:650}}>Instructions<textarea name="instructions" defaultValue={item.instructions??""} rows={3} style={field}/></label>
+ <label style={{display:"flex",gap:9,alignItems:"center",fontSize:12,marginBottom:12}}><input type="checkbox" name="is_active" defaultChecked={item.is_active}/> Show to tenants</label>
+ <button style={btn}>Update destination</button></form></details>
  </div>):<p style={{fontSize:13,color:"#718078"}}>No payment destinations saved yet.</p>}</article>
  </div></section></main>;
 }
