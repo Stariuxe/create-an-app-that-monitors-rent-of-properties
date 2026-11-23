@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-const STAFF_ROLES = new Set(["landlord", "property_manager", "accountant", "caretaker", "platform_admin"]);
+const STAFF_ROLES = new Set(["landlord", "property_manager", "accountant", "caretaker"]);
 
 /**
  * Signup role is onboarding intent only. Existing access is determined by
