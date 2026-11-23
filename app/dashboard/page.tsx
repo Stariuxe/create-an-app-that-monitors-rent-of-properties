@@ -22,7 +22,7 @@ export default async function DashboardPage({
   }
 
   const roles = (memberships ?? []).map((item: any) => String(item.role));
-  const staffRoles = new Set(["landlord", "property_manager", "accountant", "caretaker", "platform_admin"]);
+  const staffRoles = new Set(["landlord", "property_manager", "accountant", "caretaker"]);
   if (roles.some((role) => staffRoles.has(role))) redirect("/dashboard/operations");
   if (roles.includes("tenant")) redirect("/tenant-portal");
   if (roles.length) redirect("/dashboard?error=role_unavailable");
