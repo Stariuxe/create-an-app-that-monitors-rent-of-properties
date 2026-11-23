@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { signOut } from "@/app/dashboard/actions";
 
+export const dynamic = "force-dynamic";
+
 type TenantRow = { id: string; organization_id: string; full_name: string };
 type LeaseRow = {
   id: string; tenant_id: string; organization_id: string; unit_id: string;
