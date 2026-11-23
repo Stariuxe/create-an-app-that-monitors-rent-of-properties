@@ -27,6 +27,8 @@ function applyPreferences(value: Preferences) {
 export default function SettingsPanel() {
   const [preferences, setPreferences] = useState<Preferences>(defaults);
   const [ready, setReady] = useState(false);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState("Notifications are off.");
 
   useEffect(() => {
     try {
@@ -47,6 +49,12 @@ export default function SettingsPanel() {
     } catch {
       applyPreferences(defaults);
     }
+    const notificationsOn = window.localStorage.getItem("propertyos-notifications-enabled") === "true";
+    setNotificationsEnabled(notificationsOn);
+    if (!("Notification" in window)) setNotificationMessage("This browser does not support desktop notifications.");
+    else if (Notification.permission === "denied") setNotificationMessage("Notifications are blocked in this browser. Change site permissions in your browser to allow them.");
+    else if (notificationsOn && Notification.permission === "granted") setNotificationMessage("Allowed. PropertyOS will alert you about overdue rent and urgent property issues while your workspace is open.");
+    else setNotificationMessage("Off. Turn this on to receive alerts about items needing your attention.");
     setReady(true);
   }, []);
 
@@ -59,6 +67,33 @@ export default function SettingsPanel() {
     } catch {
       // The current page still receives the selected preference if storage is unavailable.
     }
+  }
+
+  async function updateNotifications(enabled: boolean) {
+    if (!enabled) {
+      setNotificationsEnabled(false);
+      setNotificationMessage("Notifications are off.");
+      window.localStorage.setItem("propertyos-notifications-enabled", "false");
+      window.dispatchEvent(new Event("propertyos-notification-preference-change"));
+      return;
+    }
+    if (!("Notification" in window)) {
+      setNotificationsEnabled(false);
+      setNotificationMessage("This browser does not support desktop notifications.");
+      return;
+    }
+    const permission = Notification.permission === "default" ? await Notification.requestPermission() : Notification.permission;
+    if (permission !== "granted") {
+      setNotificationsEnabled(false);
+      setNotificationMessage(permission === "denied" ? "Permission was blocked. Allow notifications for this website in your browser settings, then try again." : "Permission was not granted. Notifications remain off.");
+      window.localStorage.setItem("propertyos-notifications-enabled", "false");
+      window.dispatchEvent(new Event("propertyos-notification-preference-change"));
+      return;
+    }
+    setNotificationsEnabled(true);
+    setNotificationMessage("Allowed. PropertyOS will alert you about overdue rent and urgent property issues while your workspace is open.");
+    window.localStorage.setItem("propertyos-notifications-enabled", "true");
+    window.dispatchEvent(new Event("propertyos-notification-preference-change"));
   }
 
   function reset() {
@@ -118,6 +153,16 @@ export default function SettingsPanel() {
           <span><b>Reduce motion</b><small>Limit decorative transitions and animations.</small></span>
           <input type="checkbox" checked={preferences.reducedMotion} onChange={(event) => update("reducedMotion", event.target.checked)} />
         </label>
+      </section>
+
+      <section className="workspace-settings-card">
+        <div className="workspace-settings-card-heading"><span>04</span><div><h2>Attention notifications</h2><p>Choose whether PropertyOS can alert you when something needs your attention.</p></div></div>
+        <label className="workspace-toggle-row">
+          <span><b>Allow landlord notifications</b><small>Overdue rent charges and high or urgent unresolved maintenance items.</small></span>
+          <input type="checkbox" checked={notificationsEnabled} onChange={(event) => void updateNotifications(event.target.checked)} disabled={!ready} />
+        </label>
+        <p className="workspace-notification-status" role="status" aria-live="polite">{notificationMessage}</p>
+        <p className="workspace-notification-note">Notifications use this browser's permission and appear while your PropertyOS workspace is open. You can turn them off here at any time.</p>
       </section>
 
       <section className="workspace-settings-card workspace-settings-help">
