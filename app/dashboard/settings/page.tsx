@@ -1,4 +1,4 @@
-import "./preferences.css";
+import "../preferences.css";
 import SettingsPanel from "./settings-panel";
 
 export default function WorkspaceSettingsPage() {
