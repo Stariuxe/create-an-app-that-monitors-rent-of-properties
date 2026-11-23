@@ -68,7 +68,7 @@ export default async function WellbeingPage({ searchParams }: { searchParams: Pr
       <a href="/dashboard/operations" style={{color:"#315e4d",fontWeight:700,fontSize:13}}>← Back to Workspace</a>
       <p style={{color:"#6d9e8b",fontSize:11,letterSpacing:2,marginTop:24}}>PROPERTY WELLBEING · {org.name}</p>
       <h1 style={{fontSize:36,margin:"8px 0"}}>Property wellbeing & maintenance.</h1>
-      <p style={{color:"#687573",lineHeight:1.6}}>Assess property condition, track repairs and payments, and prepare reports for owners or stakeholders.</p>
+      <p style={{color:"#687573",lineHeight:1.6}}>Assess property condition, track repairs and payments, and prepare reports for owners or stakeholders.</p>\n      <p style={{fontSize:12,marginTop:12}}><a href="/dashboard/logs/maintenance" style={{fontWeight:700,color:"#315e4d"}}>Maintenance activity log ↗</a> · <a href="/dashboard/concerns" style={{fontWeight:700,color:"#315e4d"}}>Raise / review concerns ↗</a></p>
       {params.error && <p role="alert" style={{padding:12,borderRadius:8,background:"#f9e8e2",color:"#8a3829"}}>{errors[params.error] ?? "Something went wrong."}</p>}
       {params.success && <p role="status" style={{padding:12,borderRadius:8,background:"#e5f1e9",color:"#245a3e"}}>{successes[params.success] ?? "Saved."}</p>}
       <section style={{...card,marginTop:20}}>
