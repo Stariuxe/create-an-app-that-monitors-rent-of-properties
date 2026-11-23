@@ -10,6 +10,7 @@ const sections = [
   { label: "Payments", href: "/dashboard/operations#recent-payments", icon: "◎" },
   { label: "M-Pesa", href: "/dashboard/operations#mpesa", icon: "◉" },
   { label: "Portfolio intelligence", href: "/dashboard/portfolio", icon: "⌁" },
+  { label: "Settings", href: "/dashboard/settings", icon: "⚙" },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
