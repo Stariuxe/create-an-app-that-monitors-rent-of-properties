@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { addPortfolioRecord, updatePortfolioRecordStatus } from "./actions";
 
-const card: React.CSSProperties = { background: "#fff", border: "1px solid #dce4dc", borderRadius: 12, padding: 20 };
+const card: React.CSSProperties = { background: "rgba(255,255,255,.68)", backdropFilter: "blur(18px) saturate(150%)", WebkitBackdropFilter: "blur(18px) saturate(150%)", border: "1px solid rgba(255,255,255,.82)", boxShadow: "0 14px 38px rgba(19,44,42,.08),inset 0 1px 0 rgba(255,255,255,.9)", borderRadius: 16, padding: 20 };
 const field: React.CSSProperties = { width: "100%", padding: 11, border: "1px solid #cfd9d0", borderRadius: 7, marginTop: 6, marginBottom: 12, background: "#fff", color: "#132c2a" };
 const button: React.CSSProperties = { padding: "11px 15px", border: 0, borderRadius: 7, background: "#183b32", color: "#fff", fontWeight: 700, cursor: "pointer" };
 const money = (value: number) => "KES " + Math.round(value).toLocaleString("en-KE");
@@ -55,8 +55,8 @@ export default async function PortfolioPage({ searchParams }: { searchParams: Pr
   const select = (name: string, label: string, options: { value: string; label: string }[]) => <label style={{ display: "block", fontSize: 12, fontWeight: 650 }}>{label}<select name={name} required style={field}>{options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}</select></label>;
   const metric = (label: string, value: string, note: string) => <article style={card}><small style={{ color: "#6b7c73" }}>{label}</small><div style={{ fontSize: 24, fontWeight: 800, margin: "8px 0" }}>{value}</div><small style={{ color: "#7c8982" }}>{note}</small></article>;
 
-  return <main style={{ minHeight: "100vh", background: "#f3f2ec", color: "#132c2a", padding: "24px 5%" }}>
-    <header style={{ position: "sticky", top: 0, zIndex: 20, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, flexWrap: "wrap", background: "#f3f2ec", borderBottom: "1px solid #d8dfd6", padding: "14px 0" }}>
+  return <main style={{ minHeight: "100vh", background: "radial-gradient(ellipse at 12% 0%,rgba(175,211,192,.35),transparent 34%),radial-gradient(ellipse at 92% 18%,rgba(184,205,196,.34),transparent 30%),linear-gradient(135deg,#f3f5ef,#e9eee8 55%,#f4f3ed)", color: "#132c2a", padding: "24px 5%" }}>
+    <header style={{ position: "sticky", top: 0, zIndex: 20, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, flexWrap: "wrap", background: "rgba(247,249,245,.72)", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)", borderBottom: "1px solid rgba(255,255,255,.8)", padding: "14px 16px", borderRadius: 14, boxShadow: "0 8px 28px rgba(19,44,42,.06)" }}>
       <a href="/dashboard/operations" aria-label="Back to PropertyOS AI workspace" style={{ display: "inline-flex", alignItems: "center", gap: 9, fontWeight: 800, fontSize: 18, color: "#183b32", textDecoration: "none" }}><span aria-hidden="true" style={{ fontSize: 22 }}>←</span> Back to Workspace</a>
       <nav aria-label="Workspace navigation" style={{ display: "flex", gap: 16, flexWrap: "wrap", fontSize: 14, alignItems: "center" }}><a href="/dashboard/operations" style={{ color: "#183b32", fontWeight: 700 }}>Property operations</a><a href="/dashboard/portfolio" aria-current="page" style={{ color: "#183b32", fontWeight: 700 }}>Portfolio Intelligence</a><a href="/dashboard" style={{ color: "#52665c" }}>Account overview</a></nav>
     </header>
