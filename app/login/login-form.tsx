@@ -115,7 +115,7 @@ export default function LoginForm({ initialMode = "signin" }: LoginFormProps) {
         <button type="button" onClick={sendMagicLink} disabled={busy} style={{ border: 0, padding: 0, background: "transparent", color: "#183b32", fontWeight: 700, cursor: "pointer" }}>Email me a sign-in link</button>
       </div>}
       {message && <p role={messageType === "error" ? "alert" : "status"} aria-live="polite" style={{ marginTop: 16, padding: 12, borderRadius: 6, fontSize: 13, lineHeight: 1.6, color: messageType === "error" ? "#8a3829" : "#315c49", background: messageType === "error" ? "#f9e8e2" : "#e7eee7" }}>{message}</p>}
-      <p style={{ marginTop: 20, fontSize: 11, lineHeight: 1.6, color: "#7a8780" }}>Email confirmation is required. Use a unique password with at least 12 characters. Identity checks are available after sign-in.</p>
+      <p style={{ marginTop: 20, fontSize: 11, lineHeight: 1.6, color: "#7a8780" }}>Email confirmation is required. Use a unique password with at least 12 characters. Tenants and property managers need an authorised property invitation to access a workspace.</p>
     </form>
   );
 }
