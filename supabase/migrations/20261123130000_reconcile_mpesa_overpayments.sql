@@ -18,6 +18,11 @@ create table if not exists public.tenant_payment_credits (
 create index if not exists tenant_payment_credits_tenant_status_idx
   on public.tenant_payment_credits (tenant_id, status, created_at desc);
 
+-- A Daraja receipt may only settle one M-Pesa payment, even across different STK checkouts.
+create unique index if not exists payments_mpesa_receipt_unique_idx
+  on public.payments(provider_reference)
+  where method = 'mpesa' and status = 'confirmed' and provider_reference is not null;
+
 alter table public.tenant_payment_credits enable row level security;
 revoke all on table public.tenant_payment_credits from public, anon, authenticated;
 grant all on table public.tenant_payment_credits to service_role;
