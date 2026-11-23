@@ -5,7 +5,7 @@ export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
-  const isProtected = request.nextUrl.pathname.startsWith("/dashboard") || request.nextUrl.pathname.startsWith("/business-tools");
+  const isProtected = request.nextUrl.pathname.startsWith("/dashboard") || request.nextUrl.pathname.startsWith("/business-tools") || request.nextUrl.pathname.startsWith("/tenant-portal");
 
   if (!url || !key) {
     if (isProtected) return NextResponse.redirect(new URL("/login", request.url));
@@ -35,5 +35,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/business-tools/:path*", "/login"],
+  matcher: ["/dashboard/:path*", "/business-tools/:path*", "/tenant-portal/:path*", "/login"],
 };
