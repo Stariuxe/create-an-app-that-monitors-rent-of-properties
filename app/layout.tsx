@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./dashboard/preferences.css";
 import PropertyAssistant from "@/components/property-assistant";
 import PwaRegister from "@/components/pwa-register";
 
