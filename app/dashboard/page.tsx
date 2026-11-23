@@ -73,6 +73,12 @@ export default async function DashboardPage({
         <h1 style={{ fontSize: 42, letterSpacing: -2, margin: "12px 0" }}>Welcome{profile?.full_name ? `, ${profile.full_name}` : ""}.</h1>
         <p style={{ color: "#687573", lineHeight: 1.7 }}>Your secure account is connected. Create a workspace for your property portfolio to get started.</p>
         {errorText && <p role="alert" style={{ padding: 12, background: "#f9e8e2", color: "#8a3829", borderRadius: 6 }}>{errorText}</p>}
+        {accountType === "property_manager" ? (
+          <div role="status" style={{ marginTop: 32, padding: 24, background: "rgba(255,255,255,.72)", border: "1px solid #dce4dc", borderRadius: 16 }}>
+            <h2 style={{ marginTop: 0 }}>Invitation required</h2>
+            <p style={{ color: "#687573", lineHeight: 1.7 }}>Your property manager account is ready. Ask the landlord or organisation owner to invite this email address. PropertyOS will open your assigned workspace after the invitation is accepted.</p>
+          </div>
+        ) : (
         <div style={{ marginTop: 32, display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 18 }}>
           <article style={{ padding: 24, background: "rgba(255,255,255,.68)", backdropFilter: "blur(18px) saturate(150%)", WebkitBackdropFilter: "blur(18px) saturate(150%)", border: "1px solid rgba(255,255,255,.82)", boxShadow: "0 14px 38px rgba(19,44,42,.08),inset 0 1px 0 rgba(255,255,255,.9)", borderRadius: 16 }}>
             <h2 style={{ marginTop: 0 }}>Create your workspace</h2>
@@ -92,6 +98,7 @@ export default async function DashboardPage({
           </article>
         </div>
         <div style={{ marginTop: 30, padding: 22, background: "rgba(255,255,255,.58)", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)", border: "1px solid rgba(255,255,255,.78)", boxShadow: "0 12px 30px rgba(19,44,42,.06)", borderRadius: 16 }}><h2 style={{ marginTop: 0 }}>Manage your portfolio</h2><p style={{ color: "#687573", lineHeight: 1.6 }}>Add properties, units, tenants, leases and rent charges. Review live records and outstanding balances in your workspace.</p><a href="/dashboard/operations" style={{ display: "inline-block", padding: "12px 18px", background: "#183b32", color: "#fff", borderRadius: 6, textDecoration: "none", fontWeight: 700 }}>Open property operations →</a></div>
+        )}
       </section>
     </main>
   );
