@@ -16,10 +16,11 @@ export async function raiseConcern(f:FormData) {
  if(!staff) {
   const {data:tenant}=await supabase.from("tenants").select("id,organization_id").eq("auth_user_id",uid).eq("organization_id",org).maybeSingle();
   if(!tenant) redirect("/dashboard/concerns?error=access");
-  const {data:lease}=await supabase.from("leases").select("unit_id,units(property_id)").eq("tenant_id",tenant.id).eq("organization_id",org).eq("status","active").maybeSingle();
-  const leaseUnit=lease?(Array.isArray(lease.units)?lease.units[0]:lease.units):null;
-  if(!lease||!leaseUnit) redirect("/dashboard/concerns?error=access");
-  tenantId=tenant.id; unit=lease.unit_id; property=(leaseUnit as {property_id:string}).property_id;
+  const {data:lease}=await supabase.from("leases").select("unit_id").eq("tenant_id",tenant.id).eq("organization_id",org).eq("status","active").maybeSingle();
+  if(!lease) redirect("/dashboard/concerns?error=access");
+  const {data:leaseUnit}=await supabase.from("units").select("property_id").eq("id",lease.unit_id).eq("organization_id",org).maybeSingle();
+  if(!leaseUnit) redirect("/dashboard/concerns?error=access");
+  tenantId=tenant.id; unit=lease.unit_id; property=leaseUnit.property_id;
  }
  const {data:propertyRow}=await supabase.from("properties").select("id").eq("id",property).eq("organization_id",org).maybeSingle();
  if(!propertyRow) redirect("/dashboard/concerns?error=access");
