@@ -1,0 +1,2 @@
+create index if not exists property_wellbeing_reports_created_by_idx on public.property_wellbeing_reports(created_by);
+create index if not exists property_wellbeing_reports_property_id_idx on public.property_wellbeing_reports(property_id);
