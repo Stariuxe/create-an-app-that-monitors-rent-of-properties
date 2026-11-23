@@ -115,7 +115,7 @@ export default async function WellbeingPage({ searchParams }: { searchParams: Pr
               <input type="hidden" name="organization_id" value={org.id}/><input type="hidden" name="request_id" value={m.id}/>
               <label style={{fontSize:11,fontWeight:650}}>Actual cost (KES)<input name="actual_cost" type="number" min="0" step="0.01" defaultValue={m.actual_cost ?? m.estimated_cost ?? ""} required style={field}/></label>
               <label style={{fontSize:11,fontWeight:650}}>Total paid (KES)<input name="amount_paid" type="number" min="0" step="0.01" max={m.actual_cost ?? m.estimated_cost ?? undefined} defaultValue={m.amount_paid} required style={field}/></label>
-              <label style={{fontSize:11,fontWeight:650}}>Payment reference<input name="payment_reference" defaultValue={m.payment_reference ?? ""} maxLength={100} style={field}/></label>
+              <label style={{fontSize:11,fontWeight:650}}>Payment reference<input name="payment_reference" defaultValue={m.payment_reference ?? ""} maxLength={100} style={field}/></label>\n              <label style={{fontSize:11,fontWeight:650}}>Repair progress<select name="maintenance_status" defaultValue={m.status} style={field}>{["open","in_progress","on_hold","completed","cancelled"].map((status)=><option key={status} value={status}>{status.replace("_"," ")}</option>)}</select></label>
               <button style={button}>Update payment</button>
             </form>
           </article>;
