@@ -16,8 +16,9 @@ export default async function OperationsPage({searchParams}:{searchParams:Promis
   supabase.from("tenants").select("id,full_name,email,phone").eq("organization_id",org.id).order("created_at",{ascending:false}).limit(500),
   supabase.from("leases").select("id,unit_id,tenant_id,monthly_rent,start_date,status").eq("organization_id",org.id).eq("status","active").limit(500),
   supabase.from("rent_charges").select("id,lease_id,billing_period,due_date,amount,amount_paid,status").eq("organization_id",org.id).order("due_date",{ascending:false}).limit(30),
-  supabase.from("payments").select("id,amount,method,status,created_at").eq("organization_id",org.id).order("created_at",{ascending:false}).limit(10),
-  supabase.from("rent_charges").select("id,lease_id,billing_period,due_date,amount,amount_paid,status").eq("organization_id",org.id).in("status",["unpaid","partially_paid"]).order("due_date",{ascending:false}).limit(500)
+  supabase.from("payments").select("id,amount,method,status,created_at").eq("organization_id",org.id).order("created_at",{ascending:false}).limit(100),
+  supabase.from("rent_charges").select("id,lease_id,billing_period,due_date,amount,amount_paid,status").eq("organization_id",org.id).in("status",["unpaid","partially_paid"]).order("due_date",{ascending:false}).limit(500),
+  supabase.from("property_payment_instructions").select("id,label,method,is_active").eq("organization_id",org.id).eq("is_active",true).order("created_at",{ascending:false}).limit(20)
  ]);
  const properties=pr.data??[], units=ur.data??[], tenants=tr.data??[], leases=lr.data??[], charges=cr.data??[], payments=par.data??[], openCharges=ocr.data??[], paymentInstructions=ir.data??[];
  const loadErrors=[pr.error,ur.error,tr.error,lr.error,cr.error,par.error,ocr.error,ir.error].filter(Boolean);
