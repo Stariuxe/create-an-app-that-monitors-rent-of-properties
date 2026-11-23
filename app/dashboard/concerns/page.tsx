@@ -21,7 +21,8 @@ export default async function ConcernsPage({searchParams}:{searchParams:Promise<
  const [{data:properties},{data:units},{data:concerns},{data:paymentInstructions}]=await Promise.all([
   supabase.from("properties").select("id,name").eq("organization_id",org.id).order("name"),
   supabase.from("units").select("id,property_id,unit_number").eq("organization_id",org.id).order("unit_number"),
-  supabase.from("property_concerns").select("id,property_id,unit_id,tenant_id,category,title,description,priority,status,landlord_response,created_at,responded_at").eq("organization_id",org.id).order("created_at",{ascending:false}).limit(200)
+  supabase.from("property_concerns").select("id,property_id,unit_id,tenant_id,category,title,description,priority,status,landlord_response,created_at,responded_at").eq("organization_id",org.id).order("created_at",{ascending:false}).limit(200),
+  supabase.from("property_payment_instructions").select("id,label,method,beneficiary_name,bank_name,branch_name,account_name,account_number,paybill_number,till_number,phone_number,account_reference,instructions").eq("organization_id",org.id).eq("is_active",true).order("created_at",{ascending:false}).limit(20)
  ]);
  const prop=properties??[],unitList=units??[],rows=concerns??[];
  const names=new Map(prop.map((p:any)=>[p.id,p.name]));
