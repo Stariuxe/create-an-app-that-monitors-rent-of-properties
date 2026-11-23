@@ -41,7 +41,7 @@ export default function LoginForm({ initialMode = "signin" }: LoginFormProps) {
         if (data.session) {
           feedback("success", "Your account is ready. Opening the correct secure onboarding step…");
           // Always pass through the server callback: it creates landlord workspaces
-          // and routes tenants/property managers to verification without granting access.
+          // and routes tenants/property managers to the invitation step without granting access.
           window.location.replace("/auth/complete");
           return;
         }
