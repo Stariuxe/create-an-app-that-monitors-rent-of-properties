@@ -7,7 +7,7 @@ const button: React.CSSProperties = {width:"100%",padding:12,border:0,borderRadi
 export default async function OperationsPage({searchParams}:{searchParams:Promise<{error?:string;success?:string}>}) {
  const params=await searchParams; const supabase=await createClient(); const {data:claims}=await supabase.auth.getClaims(); const userId=claims?.claims?.sub; if(!userId)redirect("/login?next=%2Fdashboard%2Foperations");
  const {data:memberships}=await supabase.from("organization_members").select("organization_id,role,organizations(id,name)").eq("user_id",userId);
- const m=memberships?.find((x:any)=>["landlord","property_manager","accountant","caretaker"].includes(x.role)); const org=m?(Array.isArray(m.organizations)?m.organizations[0]:m.organizations):null;
+ const m=memberships?.find((x:any)=>["landlord","property_manager","accountant","caretaker"].includes(x.role)); if(!m&&memberships?.some((x:any)=>x.role==="tenant"))redirect("/tenant-portal"); const org=m?(Array.isArray(m.organizations)?m.organizations[0]:m.organizations):null;
  if(!org)return <main style={{padding:40,background:"#f3f2ec",minHeight:"100vh",color:"#132c2a"}}><a href="/dashboard">← Dashboard</a><h1>Create your landlord workspace first</h1></main>;
  const [pr,ur,tr,lr,cr,par,ocr]=await Promise.all([
   supabase.from("properties").select("id,name,address,county,property_type").eq("organization_id",org.id).order("created_at",{ascending:false}).limit(200),

@@ -1,15 +1,17 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
+const STAFF_ROLES = new Set(["landlord", "property_manager", "accountant", "caretaker"]);
+
 /**
- * Completes the first-login onboarding after Supabase has established a session.
- * Existing members go straight to operations; new landlords receive a private
- * workspace and membership through the database's auth-checked RPC.
+ * Signup role is onboarding intent only. Existing access is determined by
+ * organization_members, never by user-editable user_metadata.
  */
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
   const { data: claimsData, error: claimsError } = await supabase.auth.getClaims();
-  const userId = claimsData?.claims?.sub;
+  const claims = claimsData?.claims;
+  const userId = claims?.sub;
 
   if (claimsError || !userId) {
     return NextResponse.redirect(new URL("/login?error=auth_callback", request.url));
@@ -17,19 +19,35 @@ export async function GET(request: NextRequest) {
 
   const { data: memberships, error: membershipError } = await supabase
     .from("organization_members")
-    .select("organization_id")
-    .eq("user_id", userId)
-    .limit(1);
+    .select("role")
+    .eq("user_id", userId);
 
   if (membershipError) {
     console.error("PropertyOS onboarding membership lookup failed:", membershipError.code);
     return NextResponse.redirect(new URL("/dashboard?error=workspace_setup", request.url));
   }
 
-  if (memberships?.length) {
+  const roles = (memberships ?? []).map((item) => String(item.role));
+  if (roles.some((role) => STAFF_ROLES.has(role))) {
     const response = NextResponse.redirect(new URL("/dashboard/operations", request.url));
     response.headers.set("Cache-Control", "private, no-store, max-age=0");
     return response;
+  }
+  if (roles.includes("tenant")) {
+    const response = NextResponse.redirect(new URL("/tenant-portal", request.url));
+    response.headers.set("Cache-Control", "private, no-store, max-age=0");
+    return response;
+  }
+  if (roles.length) {
+    return NextResponse.redirect(new URL("/dashboard?error=role_unavailable", request.url));
+  }
+
+  const accountType = claims?.user_metadata?.account_type;
+  if (accountType === "tenant") {
+    return NextResponse.redirect(new URL("/tenant-portal?notice=awaiting_invitation", request.url));
+  }
+  if (accountType === "property_manager") {
+    return NextResponse.redirect(new URL("/dashboard?notice=awaiting_invitation", request.url));
   }
 
   const { data: profile } = await supabase
@@ -37,8 +55,7 @@ export async function GET(request: NextRequest) {
     .select("full_name")
     .eq("id", userId)
     .maybeSingle();
-
-  const emailName = String(claimsData.claims.email ?? "").split("@")[0];
+  const emailName = String(claims?.email ?? "").split("@")[0];
   const baseName = (profile?.full_name?.trim() || emailName || "My").slice(0, 84);
   const { data: organizationId, error: workspaceError } = await supabase.rpc(
     "create_workspace_for_current_user",

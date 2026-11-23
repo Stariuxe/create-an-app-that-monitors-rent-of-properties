@@ -1,4 +1,5 @@
 import Link from "next/link";
+import LandlordAttentionNotifications from "@/components/landlord-attention-notifications";
 
 const sections = [
   { label: "Overview", href: "/dashboard/operations", icon: "◫" },
@@ -37,6 +38,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <small>KENYA · KES</small>
         </div>
       </aside>
+      <LandlordAttentionNotifications />
       <div className="property-workspace-content">
         <div className="workspace-topbar">
           <div><span className="workspace-topbar-kicker">PROPERTY MANAGEMENT</span><strong>Landlord workspace</strong></div>
