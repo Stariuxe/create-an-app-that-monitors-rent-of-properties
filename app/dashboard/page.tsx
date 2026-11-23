@@ -5,9 +5,9 @@ import { createWorkspace, signOut } from "./actions";
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; notice?: string }>;
 }) {
-  const { error: errorCode } = await searchParams;
+  const { error: errorCode, notice } = await searchParams;
   const supabase = await createClient();
   const { data: claimsData } = await supabase.auth.getClaims();
   const userId = claimsData?.claims?.sub;
@@ -21,13 +21,23 @@ export default async function DashboardPage({
     console.error("PropertyOS membership lookup failed:", membershipError.code);
   }
 
-  if (memberships?.length) redirect("/dashboard/operations");
+  const roles = (memberships ?? []).map((item: any) => String(item.role));
+  const staffRoles = new Set(["landlord", "property_manager", "accountant", "caretaker", "platform_admin"]);
+  if (roles.some((role) => staffRoles.has(role))) redirect("/dashboard/operations");
+  if (roles.includes("tenant")) redirect("/tenant-portal");
+  if (roles.length) redirect("/dashboard?error=role_unavailable");
+
+  const accountType = claimsData?.claims?.user_metadata?.account_type;
+  if (accountType === "tenant") redirect("/tenant-portal?notice=awaiting_invitation");
+  if (accountType === "property_manager") {
+    // Managers must be invited into an organisation; never create a landlord workspace for them.
+  }
 
   // First successful visit after signup/sign-in automatically provisions the
   // landlord's private workspace. The database RPC validates auth.uid() and
   // creates the organization + landlord membership atomically.
   let automaticWorkspaceError = false;
-  if (!membershipError && !memberships?.length) {
+  if (!membershipError && !memberships?.length && accountType !== "tenant" && accountType !== "property_manager") {
     const emailName = String(claimsData?.claims?.email ?? "").split("@")[0];
     const baseName = (profile?.full_name?.trim() || emailName || "My").slice(0, 84);
     const workspaceName = `${baseName} Properties`;
@@ -46,7 +56,11 @@ export default async function DashboardPage({
     : errorCode === "membership" ? "Workspace created, but membership setup needs support."
     : errorCode === "auth" ? "Your sign-in session could not be verified. Please sign in again."
     : errorCode === "permission" ? "Your account is signed in, but the workspace permission check failed. Please sign out and sign in again."
-    : errorCode === "workspace" ? "Enter a workspace name between 2 and 100 characters." : "";
+    : errorCode === "workspace" ? "Enter a workspace name between 2 and 100 characters."
+    : errorCode === "role_unavailable" ? "Your account has a membership, but its role does not have a workspace destination yet. Contact your property administrator."
+    : notice === "awaiting_invitation" ? "Your account is registered. A landlord or authorised property manager must invite you before you can access a property workspace."
+    : accountType === "property_manager" ? "Your property manager account is waiting for an authorised organisation invitation. No landlord workspace has been created."
+    : "";
 
   return (
     <main style={{ minHeight: "100vh", background: "radial-gradient(ellipse at 12% 0%,rgba(175,211,192,.35),transparent 34%),radial-gradient(ellipse at 92% 18%,rgba(184,205,196,.34),transparent 30%),linear-gradient(135deg,#f3f5ef,#e9eee8 55%,#f4f3ed)", color: "#132c2a", padding: "32px 6%" }}>
