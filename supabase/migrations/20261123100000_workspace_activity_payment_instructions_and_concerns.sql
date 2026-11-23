@@ -86,7 +86,7 @@ declare v_user_id uuid:=(select auth.uid()); v_charge public.rent_charges%rowtyp
 begin
  if v_user_id is null then raise exception 'Authentication required' using errcode='28000'; end if;
  if not private.is_org_staff(p_organization_id) then raise exception 'Workspace access denied' using errcode='42501'; end if;
- if p_method not in ('bank','cash','card','other') then raise exception 'Unsupported manual payment method' using errcode='22023'; end if;
+ if p_method not in ('bank','cash','card','check','other') then raise exception 'Unsupported manual payment method' using errcode='22023'; end if;
  if p_amount is null or p_amount<=0 or p_amount>999999999999 then raise exception 'Invalid payment amount' using errcode='22023'; end if;
  if length(coalesce(p_received_from,''))>120 or length(coalesce(p_notes,''))>1000 or length(coalesce(v_ref,''))>120 then raise exception 'Payment details too long' using errcode='22023'; end if;
  if p_paid_at is null or p_paid_at>now()+interval '5 minutes' then raise exception 'Invalid payment date' using errcode='22023'; end if;
