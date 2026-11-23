@@ -22,7 +22,15 @@ export async function savePaymentInstruction(f:FormData) {
  const fields=["beneficiary_name","bank_name","branch_name","account_name","account_number","paybill_number","till_number","phone_number","account_reference","instructions"] as const;
  const payload:Record<string,unknown>={organization_id:org,method,label,is_active:f.get("is_active")==="on",updated_at:new Date().toISOString()};
  for(const key of fields) payload[key]=String(f.get(key)??"").trim()||null;
+ const limits:Record<string,number>={beneficiary_name:120,bank_name:120,branch_name:120,account_name:120,account_number:80,paybill_number:40,till_number:40,phone_number:24,account_reference:80,instructions:1500};
  if(!["mpesa","bank","cash","card","check","other"].includes(method)||label.length<2||label.length>100) redirect("/dashboard/settings/payments?error=validation");
+ if(fields.some(key=>String(payload[key]??"").length>(limits[key]??1500))) redirect("/dashboard/settings/payments?error=validation");
+ const hasDestination=method==="mpesa"
+  ? Boolean(payload.paybill_number||payload.till_number||payload.phone_number)
+  : method==="bank"
+   ? Boolean(payload.bank_name&&payload.account_number)
+   : Boolean(payload.instructions);
+ if(!hasDestination) redirect("/dashboard/settings/payments?error=validation");
  if(id) {
   const {error}=await supabase.from("property_payment_instructions").update(payload).eq("id",id).eq("organization_id",org);
   if(error) redirect("/dashboard/settings/payments?error=save");
