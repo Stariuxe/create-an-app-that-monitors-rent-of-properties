@@ -88,8 +88,11 @@ export async function POST(
     p_paid_amount: paidAmount,
   });
   if (confirmError) return NextResponse.json({ error: "Could not safely reconcile payment" }, { status: 500 });
-  if (outcome === "mismatch") return NextResponse.json({ received: true, successful: false, reason: "amount_mismatch" }, { status: 422 });
+  if (outcome === "invalid_receipt") return NextResponse.json({ received: true, successful: false, reason: "invalid_receipt" }, { status: 422 });
+  if (outcome === "receipt_conflict") return NextResponse.json({ received: true, successful: false, needs_review: true, reason: "receipt_already_used" });
   if (outcome === "unmatched") return NextResponse.json({ received: true, matched: false });
   if (outcome === "duplicate") return NextResponse.json({ received: true, duplicate: true });
-  return NextResponse.json({ received: true, successful: outcome === "confirmed" });
+  if (outcome === "confirmed_with_credit") return NextResponse.json({ received: true, successful: true, credit_created: true });
+  if (outcome === "confirmed") return NextResponse.json({ received: true, successful: true });
+  return NextResponse.json({ error: "Unexpected payment reconciliation result" }, { status: 500 });
 }
